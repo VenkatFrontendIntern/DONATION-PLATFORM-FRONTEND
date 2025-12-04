@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #f0f9ff 0%, #ecfdf5 25%, #f0fdf4 50%, #f0f9ff 75%, #ecfdf5 100%);
+    min-height: 100vh;
+  }
+
+  /* Removed infinite gradient animation to improve performance */
+  /* Animating background-position causes expensive repaints */
+  /* Static gradient provides better performance on all devices */
+  
+  /* Optional: Very subtle animation only on desktop, disabled on mobile and for reduced motion */
+  @media (min-width: 769px) and (prefers-reduced-motion: no-preference) {
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(236, 253, 245, 0.5) 0%, rgba(240, 249, 255, 0.5) 100%);
+      z-index: -1;
+      animation: subtle-gradient 20s ease-in-out infinite;
+      will-change: opacity;
+      pointer-events: none;
+    }
+
+    @keyframes subtle-gradient {
+      0%, 100% { 
+        opacity: 0;
+      }
+      50% { 
+        opacity: 0.3;
+      }
+    }
+  }
+
+  /* Custom Scrollbar Styling */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(241, 245, 249, 0.5);
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+    border-radius: 10px;
+    border: 2px solid rgba(241, 245, 249, 0.5);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #059669 0%, #047857 100%);
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #10b981 rgba(241, 245, 249, 0.5);
+  }
+}
+
+/* Hide scrollbar for clean mobile horizontal scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
