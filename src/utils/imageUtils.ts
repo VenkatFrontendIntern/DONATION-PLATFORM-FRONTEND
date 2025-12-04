@@ -109,7 +109,12 @@ export const getImageUrl = (
   }
 
   // If it's a local path, prepend the backend URL and normalize slashes
-  const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  // Use VITE_API_URL if set, otherwise use localhost
+  let backendUrl = import.meta.env.VITE_API_URL;
+  if (!backendUrl || backendUrl.trim() === '') {
+    // If VITE_API_URL is not set, use localhost
+    backendUrl = 'http://localhost:5000';
+  }
   // Remove /api from backend URL if present (since we want the base URL)
   const baseUrl = backendUrl.replace(/\/api$/, '');
   

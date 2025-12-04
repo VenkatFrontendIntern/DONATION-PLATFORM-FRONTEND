@@ -3,13 +3,26 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosR
 // Use relative URL in development (via Vite proxy) or full URL in production
 // Always ensure /api is included in the baseURL
 let API_URL: string = import.meta.env.VITE_API_URL as string;
-if (!API_URL) {
-  API_URL = import.meta.env.DEV ? '/api' : 'http://localhost:5000/api';
-} else {
+
+// If VITE_API_URL is explicitly set, use it (even in dev mode)
+if (API_URL && API_URL.trim() !== '') {
   // If VITE_API_URL is set, ensure it ends with /api
   if (!API_URL.endsWith('/api')) {
     API_URL = API_URL.endsWith('/') ? `${API_URL}api` : `${API_URL}/api`;
   }
+} else {
+  // If VITE_API_URL is NOT set (commented or empty), use localhost
+  // In dev mode: use proxy (/api -> localhost:5000)
+  // In production: use localhost directly (for local testing)
+  API_URL = import.meta.env.DEV 
+    ? '/api'  // Proxy to localhost:5000
+    : 'http://localhost:5000/api';  // Direct localhost for production builds
+}
+
+// Debug log to see which API URL is being used
+if (import.meta.env.DEV) {
+  console.log('🔧 API Base URL:', API_URL);
+  console.log('🔧 VITE_API_URL from env:', import.meta.env.VITE_API_URL || '(not set - using localhost)');
 }
 
 // Create axios instance

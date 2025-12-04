@@ -10,9 +10,14 @@ export default defineConfig(({ mode }) => {
         host: '0.0.0.0',
         proxy: {
           '/api': {
-            target: env.VITE_API_URL || 'http://localhost:5000',
+            // If VITE_API_URL is set, use it (remove /api suffix if present for proxy target)
+            // Otherwise, default to localhost for local development
+            target: env.VITE_API_URL 
+              ? env.VITE_API_URL.replace(/\/api$/, '') 
+              : 'http://localhost:5000',
             changeOrigin: true,
             secure: false,
+            rewrite: (path) => path, // Keep /api in the path
           }
         }
       },
