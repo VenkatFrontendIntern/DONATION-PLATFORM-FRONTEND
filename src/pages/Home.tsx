@@ -12,13 +12,10 @@ const Home: React.FC = () => {
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        console.log('🔍 Fetching featured campaigns...');
         const response = await campaignService.getAll({ status: 'approved', limit: 3 });
-        console.log('✅ Featured campaigns response:', response);
         setFeaturedCampaigns(response.campaigns || []);
-        console.log(`📊 Loaded ${response.campaigns?.length || 0} featured campaigns`);
       } catch (error: any) {
-        console.error('❌ Failed to fetch campaigns:', error);
+        // Silently handle errors - component will show empty state
       } finally {
         setLoading(false);
       }

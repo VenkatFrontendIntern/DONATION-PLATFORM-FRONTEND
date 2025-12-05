@@ -24,7 +24,7 @@ export const LeadershipSection: React.FC = () => {
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Leadership</h2>
             </div>
             <p className="text-lg text-gray-700 leading-relaxed">
-              Sri Engala Venkatram Reddy brings corporate excellence to social service. [cite_start]As the former <strong className="text-primary-700">CEO of Deccan Chargers</strong> (2009 IPL Winners) [cite: 72] [cite_start]and current <strong className="text-primary-700">Chairman of KUDA</strong>[cite: 408], he ensures that <strong className="text-primary-700">Engala Trust</strong> operates with the highest standards of integrity and efficiency.
+              Sri Engala Venkatram Reddy brings corporate excellence to social service. As the former <strong className="text-primary-700">CEO of Deccan Chargers</strong> (2009 IPL Winners) and current <strong className="text-primary-700">Chairman of KUDA</strong>, he ensures that <strong className="text-primary-700">Engala Trust</strong> operates with the highest standards of integrity and efficiency.
             </p>
           </div>
         </motion.div>

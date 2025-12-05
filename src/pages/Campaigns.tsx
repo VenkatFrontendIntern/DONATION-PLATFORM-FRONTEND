@@ -69,7 +69,6 @@ const Campaigns: React.FC = () => {
       const response = await campaignService.getCategories();
       setCategories(response.categories || []);
     } catch (error: any) {
-      console.warn('⚠️ Could not load categories:', error);
       setCategories([]);
     }
   };
@@ -95,30 +94,13 @@ const Campaigns: React.FC = () => {
 
       const response = await campaignService.getAll(params);
       
-      console.log('📊 Campaign API Response:', {
-        campaigns: response.campaigns?.length || 0,
-        total: response.total,
-        page: response.page,
-        limit: response.limit,
-        pages: response.pages,
-      });
-      
       setCampaigns(response.campaigns || []);
       setTotalItems(response.total || 0);
       
       // Calculate total pages
       const calculatedPages = response.pages || Math.ceil((response.total || 0) / itemsPerPage);
       setTotalPages(calculatedPages);
-      
-      console.log('📄 Pagination State:', {
-        currentPage,
-        totalPages: calculatedPages,
-        totalItems: response.total || 0,
-        itemsPerPage,
-        willShowPagination: calculatedPages > 1,
-      });
     } catch (error: any) {
-      console.error('❌ Error loading campaigns:', error);
       // Extract error message from standardized response format
       const errorData = error.response?.data;
       const errorMessage = errorData?.message || error.message || 'Failed to load campaigns. Please check your connection.';

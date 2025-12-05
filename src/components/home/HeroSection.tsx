@@ -22,12 +22,16 @@ export const HeroSection: React.FC = () => {
         if (campaignsResponse.campaigns && campaignsResponse.campaigns.length > 0) {
           setFeaturedCampaign(campaignsResponse.campaigns[0]);
         }
+      } catch (error: any) {
+        // Silently handle rate limit errors - component will show fallback image
+      }
 
+      try {
         // Load stats for donor count
         const platformStats = await statsService.getPublicStats();
         setStats({ uniqueDonors: platformStats.uniqueDonors });
-      } catch (error) {
-        console.error('Failed to load hero data:', error);
+      } catch (error: any) {
+        // Silently handle rate limit errors - component will show default stats
       }
     };
     loadData();

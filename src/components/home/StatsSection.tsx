@@ -47,8 +47,8 @@ export const StatsSection: React.FC = () => {
           totalAmount: stats.totalAmount,
           totalCampaigns: stats.totalCampaigns,
         });
-      } catch (error) {
-        console.error('Failed to load stats:', error);
+      } catch (error: any) {
+        // Silently handle rate limit errors - component will show default values of 0
         // Keep default values of 0 if API fails
       }
     };

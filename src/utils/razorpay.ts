@@ -50,10 +50,12 @@ export const openRazorpay = async (options: any): Promise<any> => {
 
   return new Promise((resolve, reject) => {
     const razorpay = new window.Razorpay({
-      ...options,
-      handler: (response: any) => {
-        resolve(response);
-      },
+      key: options.key,
+      amount: options.amount,
+      currency: options.currency || 'INR',
+      order_id: options.order_id,
+      name: options.name || 'Engala Trust',
+      description: options.description || 'Donation',
       prefill: {
         name: options.prefill?.name || '',
         email: options.prefill?.email || '',
@@ -62,12 +64,25 @@ export const openRazorpay = async (options: any): Promise<any> => {
       theme: {
         color: '#10b981',
       },
+      handler: (response: any) => {
+        resolve(response);
+      },
+      modal: {
+        ...options.modal,
+        ondismiss: () => {
+          if (options.modal?.ondismiss) {
+            options.modal.ondismiss();
+          }
+          reject(new Error('Payment cancelled by user'));
+        },
+      },
     });
 
     razorpay.on('payment.failed', (response: any) => {
-      reject(new Error(response.error.description || 'Payment failed'));
+      reject(new Error(response.error?.description || response.error?.reason || 'Payment failed'));
     });
 
+    // Open Razorpay checkout immediately
     razorpay.open();
   });
 };

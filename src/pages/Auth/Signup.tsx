@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { PasswordInput } from '../../components/ui/PasswordInput';
 import { validators } from '../../utils/validators';
+import { getErrorMessage } from '../../utils/apiResponse';
 import toast from 'react-hot-toast';
 import { Heart } from 'lucide-react';
 
@@ -65,7 +66,8 @@ const Signup: React.FC = () => {
       toast.success('Account created successfully!');
       navigate('/dashboard');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Signup failed');
+      const errorMessage = getErrorMessage(error);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

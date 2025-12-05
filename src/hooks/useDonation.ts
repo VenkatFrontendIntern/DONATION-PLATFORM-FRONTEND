@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { donationService } from '../services/donationService';
 import { openRazorpay } from '../utils/razorpay';
 import { useAuth } from '../contexts/AuthContext';
+import { getErrorMessage } from '../utils/apiResponse';
 import toast from 'react-hot-toast';
 
 interface UseDonationProps {
@@ -51,6 +52,7 @@ export const useDonation = ({ campaignId, campaignTitle, onSuccess }: UseDonatio
 
     setProcessing(true);
     try {
+      // Create order first
       const orderResponse = await donationService.createOrder({
         campaignId,
         amount: Number(donationAmount),
@@ -61,7 +63,21 @@ export const useDonation = ({ campaignId, campaignTitle, onSuccess }: UseDonatio
         donorPan: donorPan ? donorPan.toUpperCase() : undefined,
       });
 
+      // Validate order response
+      if (!orderResponse) {
+        throw new Error('Failed to create payment order. Please try again.');
+      }
+
       const { order, donationId: newDonationId } = orderResponse;
+      
+      if (!order) {
+        throw new Error('Order creation failed. Please try again.');
+      }
+
+      if (!order.id || order.amount === undefined) {
+        throw new Error('Invalid order response. Please try again.');
+      }
+
       setDonationId(newDonationId);
 
       const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
@@ -71,10 +87,14 @@ export const useDonation = ({ campaignId, campaignTitle, onSuccess }: UseDonatio
         return;
       }
 
+      // Close donation modal immediately before opening Razorpay
+      setShowDonateModal(false);
+
+      // Open Razorpay checkout immediately
       const razorpayResponse = await openRazorpay({
         key: razorpayKey,
         amount: order.amount,
-        currency: order.currency,
+        currency: order.currency || 'INR',
         order_id: order.id,
         name: 'Engala Trust',
         description: `Donation for ${campaignTitle}`,
@@ -83,8 +103,16 @@ export const useDonation = ({ campaignId, campaignTitle, onSuccess }: UseDonatio
           email: donorEmail,
           contact: donorPhone,
         },
+        modal: {
+          ondismiss: () => {
+            // Reopen donation modal if user closes Razorpay without paying
+            setShowDonateModal(true);
+            setProcessing(false);
+          },
+        },
       });
 
+      // Verify payment after successful Razorpay payment
       await donationService.verifyPayment({
         donationId: newDonationId,
         razorpayOrderId: order.id,
@@ -93,10 +121,15 @@ export const useDonation = ({ campaignId, campaignTitle, onSuccess }: UseDonatio
       });
 
       setSuccess(true);
+      setShowDonateModal(true); // Reopen modal to show success message
       toast.success('Donation successful! 80G certificate sent to your email.');
       onSuccess?.();
     } catch (error: any) {
-      toast.error(error.message || 'Payment failed');
+      // Reopen modal on error
+      setShowDonateModal(true);
+      // Extract user-friendly error message
+      const errorMessage = getErrorMessage(error);
+      toast.error(errorMessage);
     } finally {
       setProcessing(false);
     }
@@ -116,7 +149,8 @@ export const useDonation = ({ campaignId, campaignTitle, onSuccess }: UseDonatio
       document.body.removeChild(a);
       toast.success('Certificate downloaded');
     } catch (error: any) {
-      toast.error('Failed to download certificate');
+      const errorMessage = getErrorMessage(error);
+      toast.error(errorMessage || 'Failed to download certificate. Please try again.');
     }
   };
 

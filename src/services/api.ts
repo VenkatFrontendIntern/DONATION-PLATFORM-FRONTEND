@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import { getErrorMessage } from '../utils/apiResponse';
 
 // Use relative URL in development (via Vite proxy) or full URL in production
 // Always ensure /api is included in the baseURL
@@ -19,11 +20,6 @@ if (API_URL && API_URL.trim() !== '') {
     : 'http://localhost:5000/api';  // Direct localhost for production builds
 }
 
-// Debug log to see which API URL is being used
-if (import.meta.env.DEV) {
-  console.log('🔧 API Base URL:', API_URL);
-  console.log('🔧 VITE_API_URL from env:', import.meta.env.VITE_API_URL || '(not set - using localhost)');
-}
 
 // Create axios instance
 const api: AxiosInstance = axios.create({
@@ -40,18 +36,6 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    // Log API requests in development
-    if (import.meta.env.DEV) {
-      const fullUrl = config.baseURL && config.url 
-        ? `${config.baseURL}${config.url.startsWith('/') ? '' : '/'}${config.url}`
-        : config.url;
-      console.log(`🌐 API Request: ${config.method?.toUpperCase()} ${fullUrl}`, {
-        baseURL: config.baseURL,
-        url: config.url,
-        params: config.params,
-        data: config.data,
-      });
-    }
     return config;
   },
   (error) => {
@@ -62,26 +46,9 @@ api.interceptors.request.use(
 // Response interceptor - Handle errors
 api.interceptors.response.use(
   (response: AxiosResponse) => {
-    // Log successful API responses in development
-    if (import.meta.env.DEV) {
-      console.log(`✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`, {
-        status: response.status,
-        data: response.data,
-      });
-    }
     return response;
   },
   async (error: any) => {
-    // Log API errors in development
-    if (import.meta.env.DEV) {
-      const errorData = error.response?.data;
-      const errorMessage = errorData?.message || error.message;
-      console.error(`❌ API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`, {
-        status: error.response?.status,
-        message: errorMessage,
-        responseData: errorData,
-      });
-    }
 
     // Skip token refresh for public endpoints and if already on login page
     const publicEndpoints = ['/auth/login', '/auth/signup', '/auth/refresh', '/auth/forgot', '/auth/reset-password'];
@@ -133,7 +100,6 @@ api.interceptors.response.use(
       
       // If user is on an admin page but doesn't have admin role, redirect to dashboard
       if (window.location.pathname.startsWith('/admin')) {
-        console.warn('403 Forbidden: Redirecting from admin page due to insufficient permissions');
         // Clear auth if token is invalid
         if (errorData?.code === 'INVALID_TOKEN' || errorData?.code === 'AUTH_REQUIRED') {
           localStorage.removeItem('token');
@@ -144,16 +110,22 @@ api.interceptors.response.use(
           window.location.href = '/dashboard';
         }
       }
-      
-      // Log the error for debugging
-      console.error('403 Forbidden:', {
-        message: errorMessage,
-        code: errorData?.code,
-        requiredRoles: errorData?.requiredRoles,
-        userRole: errorData?.userRole,
-        path: error.config?.url
-      });
     }
+
+    // Handle rate limit errors (429) gracefully
+    if (error.response?.status === 429) {
+      const errorData = error.response?.data;
+      const errorMessage = errorData?.message || 'Too many requests. Please wait a moment and try again.';
+      
+      // For rate limit errors, we'll let the component handle it gracefully
+      // by returning a structured error that won't break the UI
+      error.isRateLimit = true;
+      error.userMessage = errorMessage;
+    }
+
+    // Attach user-friendly error message to error object for easy access
+    error.userMessage = getErrorMessage(error);
+
     return Promise.reject(error);
   }
 );

@@ -54,7 +54,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } else {
           // For network errors, keep the token but don't set user
           // This allows retry on next page load
-          console.warn('Failed to verify auth, but keeping token:', error.message);
         }
       }
     }

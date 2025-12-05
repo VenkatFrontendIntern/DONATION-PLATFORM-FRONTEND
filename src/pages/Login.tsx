@@ -5,6 +5,7 @@ import { Input } from '../components/ui/Input';
 import { PasswordInput } from '../components/ui/PasswordInput';
 import { useAuth } from '../contexts/AuthContext';
 import { validators } from '../utils/validators';
+import { getErrorMessage } from '../utils/apiResponse';
 import toast from 'react-hot-toast';
 import { Heart } from 'lucide-react';
 
@@ -41,18 +42,9 @@ const Login: React.FC = () => {
         navigate('/dashboard');
       }
     } catch (error: any) {
-      // Handle different types of errors
-      if (error.response) {
-        // Server responded with error
-        const errorMessage = error.response.data?.message || error.response.data?.error || 'Login failed';
-        toast.error(errorMessage);
-      } else if (error.request) {
-        // Request was made but no response received (network error)
-        toast.error('Network error. Please check your connection and try again.');
-      } else {
-        // Something else happened
-        toast.error(error.message || 'An unexpected error occurred');
-      }
+      // Extract user-friendly error message
+      const errorMessage = getErrorMessage(error);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

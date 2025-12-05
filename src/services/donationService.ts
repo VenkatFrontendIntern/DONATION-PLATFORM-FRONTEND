@@ -1,4 +1,5 @@
 import api from './api';
+import { ApiResponse, extractData } from '../utils/apiResponse';
 
 interface CreateOrderData {
   campaignId: string;
@@ -10,7 +11,7 @@ interface CreateOrderData {
   donorPan?: string;
 }
 
-interface CreateOrderResponse {
+interface CreateOrderResponseData {
   order: {
     id: string;
     amount: number;
@@ -26,25 +27,24 @@ interface VerifyPaymentData {
   razorpaySignature: string;
 }
 
-interface VerifyPaymentResponse {
-  success: boolean;
-  message: string;
+interface VerifyPaymentResponseData {
+  donation: any;
 }
 
-interface DonationsResponse {
+interface DonationsResponseData {
   donations: any[];
   total?: number;
 }
 
 export const donationService = {
-  createOrder: async (donationData: CreateOrderData): Promise<CreateOrderResponse> => {
-    const response = await api.post<CreateOrderResponse>('/donation/create-order', donationData);
-    return response.data;
+  createOrder: async (donationData: CreateOrderData): Promise<CreateOrderResponseData> => {
+    const response = await api.post<ApiResponse<CreateOrderResponseData>>('/donation/create-order', donationData);
+    return extractData(response.data);
   },
 
-  verifyPayment: async (verificationData: VerifyPaymentData): Promise<VerifyPaymentResponse> => {
-    const response = await api.post<VerifyPaymentResponse>('/donation/verify', verificationData);
-    return response.data;
+  verifyPayment: async (verificationData: VerifyPaymentData): Promise<VerifyPaymentResponseData> => {
+    const response = await api.post<ApiResponse<VerifyPaymentResponseData>>('/donation/verify', verificationData);
+    return extractData(response.data);
   },
 
   getCertificate: async (donationId: string): Promise<Blob> => {
@@ -54,14 +54,14 @@ export const donationService = {
     return response.data;
   },
 
-  getMyDonations: async (): Promise<DonationsResponse> => {
-    const response = await api.get<DonationsResponse>('/donation/my-donations');
-    return response.data;
+  getMyDonations: async (): Promise<DonationsResponseData> => {
+    const response = await api.get<ApiResponse<DonationsResponseData>>('/donation/my-donations');
+    return extractData(response.data);
   },
 
-  getCampaignDonations: async (campaignId: string, params: { limit?: number; page?: number } = {}): Promise<DonationsResponse> => {
-    const response = await api.get<DonationsResponse>(`/donation/campaign/${campaignId}`, { params });
-    return response.data;
+  getCampaignDonations: async (campaignId: string, params: { limit?: number; page?: number } = {}): Promise<DonationsResponseData> => {
+    const response = await api.get<ApiResponse<DonationsResponseData>>(`/donation/campaign/${campaignId}`, { params });
+    return extractData(response.data);
   },
 };
 

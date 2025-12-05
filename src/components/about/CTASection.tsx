@@ -32,7 +32,7 @@ export const CTASection: React.FC = () => {
             animate={isCtaInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.4, duration: 0.6 }}
           >
-            You don't need to donate acres of land to make a difference. [cite_start]Like our Chairman's walk in the <strong>Bharat Jodo Yatra</strong>[cite: 7], every small step counts. Join Engala Trust today.
+            You don't need to donate acres of land to make a difference. Like our Chairman's walk in the <strong>Bharat Jodo Yatra</strong>, every small step counts. Join Engala Trust today.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
