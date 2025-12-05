@@ -1,9 +1,10 @@
 import React from 'react';
 import { Button } from '../ui/Button';
-import { AlertCircle, Check, X, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
+import { AlertCircle, Check, X, Eye } from 'lucide-react';
 import { getImageUrl } from '../../utils/imageUtils';
 import { CURRENCY_SYMBOL } from '../../constants';
 import { Link } from 'react-router-dom';
+import { Pagination } from '../ui/Pagination';
 
 interface Campaign {
   _id: string;
@@ -15,6 +16,7 @@ interface Campaign {
   organizerId?: { _id: string; name: string; email: string };
   organizer: string;
   status: string;
+  rejectionReason?: string;
   createdAt?: string;
 }
 
@@ -37,6 +39,8 @@ interface PendingCampaignsListProps {
   onReject: (id: string) => void;
   onRejectionReasonChange: (reason: string) => void;
   onSetRejectingId: (id: string | null) => void;
+  showActions?: boolean; // Hide actions for rejected campaigns
+  isRejectedView?: boolean; // Indicates if this is showing rejected campaigns
 }
 
 export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
@@ -51,7 +55,10 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
   onReject,
   onRejectionReasonChange,
   onSetRejectingId,
+  showActions = true,
+  isRejectedView = false,
 }) => {
+  const isRejected = isRejectedView || (campaigns.length > 0 && campaigns[0]?.status === 'rejected');
   if (loading) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
@@ -66,9 +73,18 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
       <div className="p-6 border-b border-gray-200">
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Pending Campaign Reviews</h2>
+            <h2 className="text-xl font-bold text-gray-900">
+              {isRejected ? 'Rejected Campaigns' : 'Pending Campaign Reviews'}
+            </h2>
+            {isRejected && (
+              <p className="text-sm text-gray-500 mt-1">View campaigns that have been rejected with their rejection reasons</p>
+            )}
           </div>
-          <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-semibold">
+          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+            isRejected 
+              ? 'bg-red-100 text-red-700' 
+              : 'bg-gray-100 text-gray-700'
+          }`}>
             {pagination.total} {pagination.total === 1 ? 'campaign' : 'campaigns'}
           </span>
         </div>
@@ -77,55 +93,85 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
       {campaigns.length === 0 ? (
         <div className="p-12 text-center">
           <AlertCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">No pending campaigns to review</p>
+          <p className="text-gray-500">
+            {isRejected ? 'No rejected campaigns' : 'No pending campaigns to review'}
+          </p>
         </div>
       ) : (
         <>
-          <div className="divide-y divide-gray-200">
-            {campaigns.map((campaign) => (
-              <div key={campaign._id} className="p-6 hover:bg-gray-50 transition-colors">
-                <div className="flex gap-6">
-                  <img
-                    src={getImageUrl(campaign.coverImage)}
-                    alt={campaign.title}
-                    className="w-32 h-32 object-cover rounded-lg"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                          {campaign.title}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          by {campaign.organizer}
-                        </p>
-                      </div>
-                      <Link to={`/campaign/${campaign._id}`}>
-                        <Button variant="outline" size="sm">
-                          <Eye className="w-4 h-4 mr-2" />
-                          View
-                        </Button>
-                      </Link>
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {campaigns.map((campaign) => (
+                <div
+                  key={campaign._id}
+                  className="bg-white rounded-xl shadow-md border border-gray-200 hover:border-gray-300 overflow-hidden transition-all duration-300 hover:shadow-lg"
+                >
+                  {/* Campaign Image */}
+                  <div className="relative h-48 w-full overflow-hidden">
+                    <img
+                      src={getImageUrl(campaign.coverImage)}
+                      alt={campaign.title}
+                      className="w-full h-full object-cover"
+                    />
+                    {/* Status Badge */}
+                    <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold ${
+                      isRejected
+                        ? 'bg-red-500 text-white'
+                        : 'bg-yellow-500 text-white'
+                    }`}>
+                      {isRejected ? 'Rejected' : 'Pending'}
                     </div>
-
-                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
-                      {campaign.category && (
-                        <span className="bg-primary-50 text-primary-600 px-2 py-1 rounded">
+                    {/* Category Badge */}
+                    {campaign.category && (
+                      <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
+                        <span className="text-xs font-medium text-gray-700">
                           {campaign.category.name}
                         </span>
-                      )}
-                      <span>
-                        Goal: {CURRENCY_SYMBOL}{campaign.goalAmount.toLocaleString('en-IN')}
-                      </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Campaign Content */}
+                  <div className="p-5">
+                    {/* Title and Organizer */}
+                    <div className="mb-3">
+                      <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-2">
+                        {campaign.title}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        by <span className="font-medium">{campaign.organizer}</span>
+                      </p>
                     </div>
 
+                    {/* Description */}
+                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                      {campaign.description}
+                    </p>
+
+                    {/* Goal Amount */}
+                    <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-1">Goal Amount</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {CURRENCY_SYMBOL}{campaign.goalAmount.toLocaleString('en-IN')}
+                      </p>
+                    </div>
+
+                    {/* Rejection Reason for Rejected Campaigns */}
+                    {isRejected && campaign.rejectionReason && (
+                      <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-xs font-semibold text-red-800 mb-1">Rejection Reason:</p>
+                        <p className="text-sm text-red-700 line-clamp-3">{campaign.rejectionReason}</p>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
                     {rejectingId === campaign._id ? (
                       <div className="space-y-3">
                         <textarea
                           value={rejectionReason}
                           onChange={(e) => onRejectionReasonChange(e.target.value)}
                           placeholder="Enter rejection reason..."
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                           rows={3}
                         />
                         <div className="flex gap-2">
@@ -134,6 +180,7 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
                             onClick={() => onReject(campaign._id)}
                             loading={actionLoading === campaign._id}
                             disabled={!rejectionReason.trim()}
+                            className="flex-1"
                           >
                             Confirm Reject
                           </Button>
@@ -150,81 +197,58 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
                         </div>
                       </div>
                     ) : (
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => onApprove(campaign._id)}
-                          loading={actionLoading === campaign._id}
-                        >
-                          <Check className="w-4 h-4 mr-2" />
-                          Approve
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => onSetRejectingId(campaign._id)}
-                          disabled={actionLoading === campaign._id}
-                        >
-                          <X className="w-4 h-4 mr-2" />
-                          Reject
-                        </Button>
+                      <div className="space-y-2">
+                        {showActions && (
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => onApprove(campaign._id)}
+                              loading={actionLoading === campaign._id}
+                              className="flex-1"
+                            >
+                              <Check className="w-4 h-4 mr-2" />
+                              Approve
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => onSetRejectingId(campaign._id)}
+                              disabled={actionLoading === campaign._id}
+                              className="flex-1 border-red-500 text-red-600 hover:bg-red-50"
+                            >
+                              <X className="w-4 h-4 mr-2" />
+                              Reject
+                            </Button>
+                          </div>
+                        )}
+                        <Link to={`/campaign/${campaign._id}`} className="block">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Campaign
+                          </Button>
+                        </Link>
                       </div>
                     )}
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
           {pagination.pages > 1 && (
-            <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-              <div className="text-sm text-gray-600">
-                Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
-                {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
-                {pagination.total} campaigns
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onPageChange(pagination.page - 1)}
-                  disabled={pagination.page === 1}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-                <div className="flex gap-1">
-                  {Array.from({ length: pagination.pages }, (_, i) => i + 1)
-                    .filter((page) => {
-                      return (
-                        page === 1 ||
-                        page === pagination.pages ||
-                        (page >= pagination.page - 1 && page <= pagination.page + 1)
-                      );
-                    })
-                    .map((page, idx, arr) => (
-                      <React.Fragment key={page}>
-                        {idx > 0 && arr[idx - 1] !== page - 1 && (
-                          <span className="px-2">...</span>
-                        )}
-                        <Button
-                          variant={pagination.page === page ? 'primary' : 'outline'}
-                          size="sm"
-                          onClick={() => onPageChange(page)}
-                        >
-                          {page}
-                        </Button>
-                      </React.Fragment>
-                    ))}
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onPageChange(pagination.page + 1)}
-                  disabled={pagination.page === pagination.pages}
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
+            <div className="px-6 py-4 border-t border-gray-200">
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.pages}
+                totalItems={pagination.total}
+                itemsPerPage={pagination.limit}
+                onPageChange={onPageChange}
+                showInfo={false}
+              />
             </div>
           )}
         </>

@@ -4,6 +4,7 @@ import { CampaignCard } from '../components/campaign/CampaignCard';
 import { Search, Filter, AlertCircle, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from '../components/ui/Button';
+import { Pagination } from '../components/ui/Pagination';
 
 interface CampaignWithPopulated {
   _id: string;
@@ -29,38 +30,93 @@ const Campaigns: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const itemsPerPage = 12; // Number of campaigns per page
+
+  // Debounce search term
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
 
   useEffect(() => {
-    loadData();
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1); // Reset to first page when search changes
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Reset to first page when category changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory]);
+
+  // Load campaigns when filters or page change
+  useEffect(() => {
+    loadCampaigns();
+  }, [currentPage, selectedCategory, debouncedSearchTerm]);
+
+  // Load categories on mount
+  useEffect(() => {
+    loadCategories();
   }, []);
 
-  const loadData = async () => {
+  const loadCategories = async () => {
     try {
+      const response = await campaignService.getCategories();
+      setCategories(response.categories || []);
+    } catch (error: any) {
+      console.warn('⚠️ Could not load categories:', error);
+      setCategories([]);
+    }
+  };
+
+  const loadCampaigns = async () => {
+    try {
+      setLoading(true);
       setError(null);
-      console.log('🔍 Fetching campaigns and categories...');
       
-      // Fetch campaigns and categories in parallel from public endpoints
-      const [campaignsRes, categoriesRes] = await Promise.allSettled([
-        campaignService.getAll({ status: 'approved' }),
-        campaignService.getCategories(),
-      ]);
-      
-      // Handle campaigns result
-      if (campaignsRes.status === 'fulfilled') {
-        setCampaigns(campaignsRes.value.campaigns || []);
-        console.log(`📊 Loaded ${campaignsRes.value.campaigns?.length || 0} campaigns`);
-      } else {
-        throw campaignsRes.reason;
+      const params: any = {
+        status: 'approved',
+        page: currentPage,
+        limit: itemsPerPage,
+      };
+
+      if (selectedCategory) {
+        params.category = selectedCategory;
       }
-      
-      // Handle categories result (optional - don't fail if categories can't load)
-      if (categoriesRes.status === 'fulfilled') {
-        setCategories(categoriesRes.value.categories || []);
-        console.log(`📊 Loaded ${categoriesRes.value.categories?.length || 0} categories`);
-      } else {
-        console.warn('⚠️ Could not load categories (filtering will be limited):', categoriesRes.reason);
-        setCategories([]);
+
+      if (debouncedSearchTerm) {
+        params.search = debouncedSearchTerm;
       }
+
+      const response = await campaignService.getAll(params);
+      
+      console.log('📊 Campaign API Response:', {
+        campaigns: response.campaigns?.length || 0,
+        total: response.total,
+        page: response.page,
+        limit: response.limit,
+        pages: response.pages,
+      });
+      
+      setCampaigns(response.campaigns || []);
+      setTotalItems(response.total || 0);
+      
+      // Calculate total pages
+      const calculatedPages = response.pages || Math.ceil((response.total || 0) / itemsPerPage);
+      setTotalPages(calculatedPages);
+      
+      console.log('📄 Pagination State:', {
+        currentPage,
+        totalPages: calculatedPages,
+        totalItems: response.total || 0,
+        itemsPerPage,
+        willShowPagination: calculatedPages > 1,
+      });
     } catch (error: any) {
       console.error('❌ Error loading campaigns:', error);
       const errorMessage = error.response?.data?.message || error.message || 'Failed to load campaigns. Please check your connection.';
@@ -71,14 +127,11 @@ const Campaigns: React.FC = () => {
     }
   };
 
-  const filteredCampaigns = campaigns.filter((c) => {
-    const matchesCategory = !selectedCategory || c.category?._id === selectedCategory;
-    const matchesSearch =
-      !searchTerm ||
-      c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 pb-24 md:pb-12">
@@ -172,12 +225,12 @@ const Campaigns: React.FC = () => {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">Failed to Load Campaigns</h3>
             <p className="text-gray-500 mb-4">{error}</p>
-            <Button onClick={loadData} variant="outline">
+            <Button onClick={loadCampaigns} variant="outline">
               <RefreshCw size={18} className="mr-2" />
               Try Again
             </Button>
           </div>
-        ) : filteredCampaigns.length === 0 ? (
+        ) : campaigns.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-xl border border-dashed border-gray-300">
             <div className="mx-auto h-12 w-12 text-gray-400 mb-3">
               <Filter size={48} />
@@ -186,11 +239,39 @@ const Campaigns: React.FC = () => {
             <p className="text-gray-500">Try adjusting your search or filters.</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCampaigns.map((campaign) => (
-              <CampaignCard key={campaign._id} campaign={campaign} />
-            ))}
-          </div>
+          <>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {campaigns.map((campaign) => (
+                <CampaignCard key={campaign._id} campaign={campaign} />
+              ))}
+            </div>
+            
+            {/* Pagination - Only show when there are multiple pages */}
+            {totalPages > 1 ? (
+              <div className="mt-8 pt-6">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={totalItems}
+                  itemsPerPage={itemsPerPage}
+                  onPageChange={handlePageChange}
+                  showInfo={false}
+                />
+              </div>
+            ) : (
+              // Debug: Show info when pagination should appear
+              totalItems > 0 && (
+                <div className="mt-8 pt-6 text-center text-sm text-gray-500">
+                  <p>Total campaigns: {totalItems} | Items per page: {itemsPerPage} | Pages: {totalPages}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {totalItems <= itemsPerPage 
+                      ? 'Not enough campaigns for pagination (need more than ' + itemsPerPage + ')' 
+                      : 'Pagination should appear here'}
+                  </p>
+                </div>
+              )
+            )}
+          </>
         )}
       </div>
     </div>

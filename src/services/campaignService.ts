@@ -9,10 +9,12 @@ interface CampaignParams {
 }
 
 interface CampaignResponse {
+  success?: boolean;
   campaigns: any[];
   total?: number;
   page?: number;
   limit?: number;
+  pages?: number; // Calculated from total and limit
 }
 
 interface SingleCampaignResponse {

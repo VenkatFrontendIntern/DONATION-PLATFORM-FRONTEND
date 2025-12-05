@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { StatsCards } from '../../components/admin/StatsCards';
 import { CategoryManagement } from '../../components/admin/CategoryManagement';
 import { PendingCampaignsList } from '../../components/admin/PendingCampaignsList';
+import { ConfirmModal } from '../../components/ui/ConfirmModal';
 import toast from 'react-hot-toast';
 import { Donation as DonationType, Campaign as CampaignType } from '../../types';
 
@@ -19,7 +20,7 @@ interface CampaignWithPopulated extends Omit<CampaignType, 'id' | 'category' | '
 
 interface Stats {
   users: { total: number };
-  campaigns: { total: number; pending: number; approved: number };
+  campaigns: { total: number; pending: number; approved: number; rejected?: number };
   donations: { total: number; totalAmount: number };
   recentDonations: DonationType[];
 }
@@ -56,9 +57,23 @@ const AdminDashboard: React.FC = () => {
   const [createLoading, setCreateLoading] = useState(false);
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
-    limit: 10,
+    limit: 6, // Reduced to 6 items per page to show pagination more easily
     total: 0,
     pages: 0,
+  });
+  const [activeTab, setActiveTab] = useState<'pending' | 'rejected'>('pending');
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    variant?: 'danger' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    variant: 'warning',
   });
 
   useEffect(() => {
@@ -67,8 +82,12 @@ const AdminDashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    setPagination(prev => ({ ...prev, page: 1 })); // Reset to page 1 when tab changes
+  }, [activeTab]);
+
+  useEffect(() => {
     loadCampaigns();
-  }, [pagination.page]);
+  }, [pagination.page, activeTab]);
 
   const loadData = async () => {
     try {
@@ -81,6 +100,7 @@ const AdminDashboard: React.FC = () => {
           total: backendStats.totalCampaigns || 0,
           pending: backendStats.pendingCampaigns || 0,
           approved: backendStats.approvedCampaigns || 0,
+          rejected: backendStats.rejectedCampaigns || 0,
         },
         donations: {
           total: backendStats.totalDonations || 0,
@@ -98,7 +118,7 @@ const AdminDashboard: React.FC = () => {
   const loadCampaigns = async () => {
     try {
       setCampaignsLoading(true);
-      const response = await adminService.getPendingCampaigns('pending', pagination.page, pagination.limit);
+      const response = await adminService.getPendingCampaigns(activeTab, pagination.page, pagination.limit);
       setCampaigns(response.campaigns || []);
       
       if (response.pagination) {
@@ -112,7 +132,7 @@ const AdminDashboard: React.FC = () => {
         });
       }
     } catch (error: any) {
-      toast.error('Failed to load pending campaigns');
+      toast.error(`Failed to load ${activeTab} campaigns`);
     } finally {
       setCampaignsLoading(false);
     }
@@ -138,7 +158,6 @@ const AdminDashboard: React.FC = () => {
       await adminService.createCategory({
         name: newCategory.name,
         description: newCategory.description,
-        icon: newCategory.icon,
       });
       toast.success('Category created successfully');
       setShowCategoryModal(false);
@@ -152,18 +171,25 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleDeleteCategory = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this category?')) return;
-
-    setDeleteLoading(id);
-    try {
-      await adminService.deleteCategory(id);
-      toast.success('Category deleted successfully');
-      loadCategories();
-    } catch (error: any) {
-      toast.error('Failed to delete category');
-    } finally {
-      setDeleteLoading(null);
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Category',
+      message: 'Are you sure you want to delete this category? This action cannot be undone.',
+      variant: 'danger',
+      onConfirm: async () => {
+        setConfirmModal({ ...confirmModal, isOpen: false });
+        setDeleteLoading(id);
+        try {
+          await adminService.deleteCategory(id);
+          toast.success('Category deleted successfully');
+          loadCategories();
+        } catch (error: any) {
+          toast.error('Failed to delete category');
+        } finally {
+          setDeleteLoading(null);
+        }
+      },
+    });
   };
 
   const handleApprove = async (id: string) => {
@@ -250,6 +276,44 @@ const AdminDashboard: React.FC = () => {
           createLoading={createLoading}
         />
 
+        {/* Tabs for Pending and Rejected Campaigns */}
+        <div className="mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('pending')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'pending'
+                    ? 'border-primary-500 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Pending Campaigns
+                {stats && stats.campaigns.pending > 0 && (
+                  <span className="ml-2 bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+                    {stats.campaigns.pending}
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('rejected')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'rejected'
+                    ? 'border-primary-500 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Rejected Campaigns
+                {stats && stats.campaigns.rejected && stats.campaigns.rejected > 0 && (
+                  <span className="ml-2 bg-red-100 text-red-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+                    {stats.campaigns.rejected}
+                  </span>
+                )}
+              </button>
+            </nav>
+          </div>
+        </div>
+
         <PendingCampaignsList
           campaigns={campaigns}
           pagination={pagination}
@@ -262,6 +326,21 @@ const AdminDashboard: React.FC = () => {
           onReject={handleReject}
           onRejectionReasonChange={setRejectionReason}
           onSetRejectingId={setRejectingId}
+          showActions={activeTab === 'pending'}
+          isRejectedView={activeTab === 'rejected'}
+        />
+
+        {/* Confirmation Modal */}
+        <ConfirmModal
+          isOpen={confirmModal.isOpen}
+          title={confirmModal.title}
+          message={confirmModal.message}
+          variant={confirmModal.variant}
+          confirmText="Delete"
+          cancelText="Cancel"
+          onConfirm={confirmModal.onConfirm}
+          onCancel={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+          loading={deleteLoading !== null}
         />
       </div>
     </div>
