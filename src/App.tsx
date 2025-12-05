@@ -18,6 +18,7 @@ const CreateCampaign = lazy(() => import('./pages/CreateCampaign'));
 const AdminDashboard = lazy(() => import('./pages/Admin/Dashboard'));
 const PendingCampaigns = lazy(() => import('./pages/Admin/PendingCampaigns'));
 const AboutUs = lazy(() => import('./pages/AboutUs'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Scroll to top on route change
 const ScrollToTop = React.memo(() => {
@@ -33,11 +34,11 @@ ScrollToTop.displayName = 'ScrollToTop';
 const PageTransition: React.FC<{ children: React.ReactNode }> = React.memo(({ children }) => {
   // Reduce animation complexity for better performance
   const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  
+
   if (prefersReducedMotion) {
     return <>{children}</>;
   }
-  
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -51,10 +52,10 @@ const PageTransition: React.FC<{ children: React.ReactNode }> = React.memo(({ ch
 }) as React.FC<{ children: React.ReactNode }>;
 PageTransition.displayName = 'PageTransition';
 
-const Layout: React.FC<{ children: React.ReactNode; showHeader?: boolean; showFooter?: boolean }> = React.memo(({ 
-  children, 
-  showHeader = true, 
-  showFooter = true 
+const Layout: React.FC<{ children: React.ReactNode; showHeader?: boolean; showFooter?: boolean }> = React.memo(({
+  children,
+  showHeader = true,
+  showFooter = true
 }) => {
   return (
     <div className="flex flex-col min-h-screen text-gray-800">
@@ -102,25 +103,25 @@ Layout.displayName = 'Layout';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
-  
+
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
-  
+
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
 const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
-  
+
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
-  
+
   if (!user || user.role !== 'admin') {
     return <Navigate to="/login" />;
   }
-  
+
   return <>{children}</>;
 };
 
@@ -142,7 +143,7 @@ const AnimatedRoutes: React.FC = () => {
               <PageTransition><Signup /></PageTransition>
             </Layout>
           } />
-          
+
           {/* Public routes with layout */}
           <Route path="/" element={
             <Layout>
@@ -164,7 +165,7 @@ const AnimatedRoutes: React.FC = () => {
               <PageTransition><AboutUs /></PageTransition>
             </Layout>
           } />
-          
+
           {/* Protected routes */}
           <Route path="/dashboard" element={
             <Layout>
@@ -180,7 +181,7 @@ const AnimatedRoutes: React.FC = () => {
               </PrivateRoute>
             </Layout>
           } />
-          
+
           {/* Admin routes - With normal layout (navbar and footer) */}
           <Route path="/admin" element={
             <Layout>
@@ -196,12 +197,12 @@ const AnimatedRoutes: React.FC = () => {
               </AdminRoute>
             </Layout>
           } />
-          
+
           {/* 404 */}
           <Route path="*" element={
             <Layout>
               <PageTransition>
-                <div className="p-20 text-center">404 - Not Found</div>
+                <NotFound />
               </PageTransition>
             </Layout>
           } />

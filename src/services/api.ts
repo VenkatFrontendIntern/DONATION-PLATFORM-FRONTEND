@@ -109,6 +109,35 @@ api.interceptors.response.use(
         window.location.href = '/login';
       }
     }
+    
+    if (error.response?.status === 403) {
+      // Access denied - insufficient permissions
+      const errorData = error.response?.data;
+      const errorMessage = errorData?.message || 'Access denied. You do not have permission to access this resource.';
+      
+      // If user is on an admin page but doesn't have admin role, redirect to dashboard
+      if (window.location.pathname.startsWith('/admin')) {
+        console.warn('403 Forbidden: Redirecting from admin page due to insufficient permissions');
+        // Clear auth if token is invalid
+        if (errorData?.code === 'INVALID_TOKEN' || errorData?.code === 'AUTH_REQUIRED') {
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
+          window.location.href = '/login';
+        } else {
+          // User is authenticated but not admin - redirect to user dashboard
+          window.location.href = '/dashboard';
+        }
+      }
+      
+      // Log the error for debugging
+      console.error('403 Forbidden:', {
+        message: errorMessage,
+        code: errorData?.code,
+        requiredRoles: errorData?.requiredRoles,
+        userRole: errorData?.userRole,
+        path: error.config?.url
+      });
+    }
     return Promise.reject(error);
   }
 );
