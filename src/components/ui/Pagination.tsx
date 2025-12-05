@@ -23,24 +23,18 @@ export const Pagination: React.FC<PaginationProps> = ({
 }) => {
   // Hide pagination if there's only 1 page
   if (totalPages <= 1) {
-    // Debug: Log why pagination is hidden
-    console.log('🔍 Pagination hidden:', { totalPages, totalItems, itemsPerPage });
     return null;
   }
-
-  // Debug: Log pagination rendering
-  console.log('✅ Rendering Pagination:', { currentPage, totalPages, totalItems, itemsPerPage });
 
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
-  // Generate page numbers to display
+  // Generate page numbers to display (max 3 page buttons)
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
-    const maxVisible = 5;
 
-    if (totalPages <= maxVisible) {
-      // Show all pages if total pages is less than max visible
+    if (totalPages <= 3) {
+      // Show all pages if total pages is 3 or less
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
       }
@@ -48,35 +42,25 @@ export const Pagination: React.FC<PaginationProps> = ({
       // Always show first page
       pages.push(1);
 
-      // Calculate start and end of middle pages
-      let start = Math.max(2, currentPage - 1);
-      let end = Math.min(totalPages - 1, currentPage + 1);
-
-      // Adjust if we're near the start
-      if (currentPage <= 3) {
-        start = 2;
-        end = 4;
-      }
-
-      // Adjust if we're near the end
-      if (currentPage >= totalPages - 2) {
-        start = totalPages - 3;
-        end = totalPages - 1;
-      }
-
-      // Add ellipsis after first page if needed
-      if (start > 2) {
-        pages.push('ellipsis-start');
-      }
-
-      // Add middle pages
-      for (let i = start; i <= end; i++) {
-        pages.push(i);
-      }
-
-      // Add ellipsis before last page if needed
-      if (end < totalPages - 1) {
+      // Show current page if it's not first or last
+      if (currentPage !== 1 && currentPage !== totalPages) {
+        // Add ellipsis before current page if there's a gap
+        if (currentPage > 2) {
+          pages.push('ellipsis-start');
+        }
+        pages.push(currentPage);
+        // Add ellipsis after current page if there's a gap
+        if (currentPage < totalPages - 1) {
+          pages.push('ellipsis-end');
+        }
+      } else if (currentPage === 1) {
+        // On first page, show page 2 and ellipsis
+        pages.push(2);
         pages.push('ellipsis-end');
+      } else if (currentPage === totalPages) {
+        // On last page, show ellipsis and second-to-last page
+        pages.push('ellipsis-start');
+        pages.push(totalPages - 1);
       }
 
       // Always show last page

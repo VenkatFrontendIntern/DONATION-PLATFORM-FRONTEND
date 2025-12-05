@@ -74,13 +74,21 @@ api.interceptors.response.use(
   async (error: any) => {
     // Log API errors in development
     if (import.meta.env.DEV) {
+      const errorData = error.response?.data;
+      const errorMessage = errorData?.message || error.message;
       console.error(`❌ API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`, {
         status: error.response?.status,
-        message: error.message,
-        responseData: error.response?.data,
+        message: errorMessage,
+        responseData: errorData,
       });
     }
-    if (error.response?.status === 401) {
+
+    // Skip token refresh for public endpoints and if already on login page
+    const publicEndpoints = ['/auth/login', '/auth/signup', '/auth/refresh', '/auth/forgot', '/auth/reset-password'];
+    const isPublicEndpoint = error.config?.url && publicEndpoints.some(endpoint => error.config.url.includes(endpoint));
+    const isOnLoginPage = window.location.pathname === '/login' || window.location.pathname === '/signup';
+
+    if (error.response?.status === 401 && !isPublicEndpoint && !isOnLoginPage) {
       // Token expired, try to refresh
       const refreshToken = localStorage.getItem('refreshToken');
       if (refreshToken) {
@@ -88,7 +96,9 @@ api.interceptors.response.use(
           const response = await axios.post(`${API_URL}/auth/refresh`, {
             refreshToken,
           });
-          const { token, refreshToken: newRefreshToken } = response.data;
+          // Handle new standardized response format
+          const responseData = response.data.data || response.data;
+          const { token, refreshToken: newRefreshToken } = responseData;
           localStorage.setItem('token', token);
           localStorage.setItem('refreshToken', newRefreshToken);
           
@@ -98,22 +108,28 @@ api.interceptors.response.use(
             return api.request(error.config);
           }
         } catch (refreshError) {
-          // Refresh failed, logout user
+          // Refresh failed, logout user (but don't redirect if already on login page)
           localStorage.removeItem('token');
           localStorage.removeItem('refreshToken');
-          window.location.href = '/login';
+          if (!isOnLoginPage) {
+            window.location.href = '/login';
+          }
         }
       } else {
+        // No refresh token, clear auth (but don't redirect if already on login page)
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
+        if (!isOnLoginPage) {
+          window.location.href = '/login';
+        }
       }
     }
     
     if (error.response?.status === 403) {
       // Access denied - insufficient permissions
       const errorData = error.response?.data;
-      const errorMessage = errorData?.message || 'Access denied. You do not have permission to access this resource.';
+      // Handle new standardized response format
+      const errorMessage = errorData?.message || errorData?.data?.message || 'Access denied. You do not have permission to access this resource.';
       
       // If user is on an admin page but doesn't have admin role, redirect to dashboard
       if (window.location.pathname.startsWith('/admin')) {

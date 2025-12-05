@@ -11,10 +11,3 @@ export const CATEGORIES = [
   { label: 'Animals', value: CampaignCategory.ANIMAL_WELFARE },
 ];
 
-export const MOCK_IMAGES = {
-  MEDICAL: "https://picsum.photos/800/600?random=1",
-  EDUCATION: "https://picsum.photos/800/600?random=2",
-  DISASTER: "https://picsum.photos/800/600?random=3",
-  ANIMAL: "https://picsum.photos/800/600?random=4",
-  AVATAR: "https://picsum.photos/200/200?random=5",
-};

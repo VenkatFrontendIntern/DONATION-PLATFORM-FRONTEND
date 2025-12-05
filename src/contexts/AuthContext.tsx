@@ -46,18 +46,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         const response = await authService.getMe();
         setUser(response.user);
-      } catch (error) {
-        authService.logout();
-        setUser(null);
+      } catch (error: any) {
+        // Only logout if it's an authentication error (401/403), not network errors
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          authService.logout();
+          setUser(null);
+        } else {
+          // For network errors, keep the token but don't set user
+          // This allows retry on next page load
+          console.warn('Failed to verify auth, but keeping token:', error.message);
+        }
       }
     }
     setLoading(false);
   };
 
   const login = async (email: string, password: string): Promise<AuthResponse> => {
-    const response = await authService.login(email, password);
-    setUser(response.user);
-    return response;
+    try {
+      const response = await authService.login(email, password);
+      setUser(response.user);
+      return response;
+    } catch (error: any) {
+      // Re-throw error so Login component can handle it
+      throw error;
+    }
   };
 
   const signup = async (userData: SignupData): Promise<AuthResponse> => {

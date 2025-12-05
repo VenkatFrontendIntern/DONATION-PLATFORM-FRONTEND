@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { PasswordInput } from '../../components/ui/PasswordInput';
 import { validators } from '../../utils/validators';
 import toast from 'react-hot-toast';
 import { Heart } from 'lucide-react';
@@ -101,18 +102,16 @@ const Signup: React.FC = () => {
             onChange={handleChange}
             required
           />
-          <Input
+          <PasswordInput
             label="Password"
             name="password"
-            type="password"
             value={formData.password}
             onChange={handleChange}
             required
           />
-          <Input
+          <PasswordInput
             label="Confirm Password"
             name="confirmPassword"
-            type="password"
             value={formData.confirmPassword}
             onChange={handleChange}
             required

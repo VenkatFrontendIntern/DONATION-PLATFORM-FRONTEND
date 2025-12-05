@@ -1,5 +1,6 @@
 import api from './api';
 import { AuthResponse, User } from '../types';
+import { ApiResponse, extractData } from '../utils/apiResponse';
 
 interface SignupData {
   name: string;
@@ -15,25 +16,27 @@ interface GetMeResponse {
 
 export const authService = {
   signup: async (userData: SignupData): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>('/auth/signup', userData);
-    if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
-      if (response.data.refreshToken) {
-        localStorage.setItem('refreshToken', response.data.refreshToken);
+    const response = await api.post<ApiResponse<AuthResponse>>('/auth/signup', userData);
+    const data = extractData(response.data);
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      if (data.refreshToken) {
+        localStorage.setItem('refreshToken', data.refreshToken);
       }
     }
-    return response.data;
+    return data;
   },
 
   login: async (email: string, password: string): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>('/auth/login', { email, password });
-    if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
-      if (response.data.refreshToken) {
-        localStorage.setItem('refreshToken', response.data.refreshToken);
+    const response = await api.post<ApiResponse<AuthResponse>>('/auth/login', { email, password });
+    const data = extractData(response.data);
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      if (data.refreshToken) {
+        localStorage.setItem('refreshToken', data.refreshToken);
       }
     }
-    return response.data;
+    return data;
   },
 
   logout: (): void => {
@@ -42,18 +45,18 @@ export const authService = {
   },
 
   getMe: async (): Promise<GetMeResponse> => {
-    const response = await api.get<GetMeResponse>('/auth/me');
-    return response.data;
+    const response = await api.get<ApiResponse<GetMeResponse>>('/auth/me');
+    return extractData(response.data);
   },
 
   forgotPassword: async (email: string): Promise<{ message: string }> => {
-    const response = await api.post<{ message: string }>('/auth/forgot', { email });
-    return response.data;
+    const response = await api.post<ApiResponse<{ message: string }>>('/auth/forgot', { email });
+    return extractData(response.data);
   },
 
   resetPassword: async (token: string, password: string): Promise<{ message: string }> => {
-    const response = await api.post<{ message: string }>('/auth/reset-password', { token, password });
-    return response.data;
+    const response = await api.post<ApiResponse<{ message: string }>>('/auth/reset-password', { token, password });
+    return extractData(response.data);
   },
 
   isAuthenticated: (): boolean => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { adminService } from '../../services/adminService';
 import { useAuth } from '../../contexts/AuthContext';
 import { StatsCards } from '../../components/admin/StatsCards';
@@ -76,23 +76,36 @@ const AdminDashboard: React.FC = () => {
     variant: 'warning',
   });
 
+  const loadingRef = useRef(false);
+  const prevTabRef = useRef(activeTab);
+
   useEffect(() => {
     loadData();
     loadCategories();
   }, []);
 
+  // Reset page to 1 when tab changes
   useEffect(() => {
-    setPagination(prev => ({ ...prev, page: 1 })); // Reset to page 1 when tab changes
+    if (prevTabRef.current !== activeTab) {
+      prevTabRef.current = activeTab;
+      setPagination(prev => ({ ...prev, page: 1 }));
+    }
   }, [activeTab]);
 
+  // Load campaigns when page or tab changes
   useEffect(() => {
+    // Prevent duplicate calls
+    if (loadingRef.current) {
+      return;
+    }
+
     loadCampaigns();
   }, [pagination.page, activeTab]);
 
   const loadData = async () => {
     try {
       const statsRes = await adminService.getStats();
-      const backendStats = statsRes.stats || statsRes;
+      const backendStats = statsRes.stats;
       
       setStats({
         users: { total: backendStats.totalUsers || 0 },
@@ -109,32 +122,38 @@ const AdminDashboard: React.FC = () => {
         recentDonations: [],
       });
     } catch (error: any) {
-      toast.error('Failed to load data');
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to load data';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
   const loadCampaigns = async () => {
+    // Prevent duplicate calls
+    if (loadingRef.current) {
+      return;
+    }
+
+    loadingRef.current = true;
     try {
       setCampaignsLoading(true);
       const response = await adminService.getPendingCampaigns(activeTab, pagination.page, pagination.limit);
+      
       setCampaigns(response.campaigns || []);
       
       if (response.pagination) {
-        setPagination(response.pagination);
-      } else if (response.total !== undefined && response.page !== undefined && response.limit !== undefined) {
-        setPagination({
-          page: response.page,
-          limit: response.limit,
-          total: response.total,
-          pages: Math.ceil(response.total / response.limit),
-        });
+        setPagination(prev => ({
+          ...prev,
+          ...response.pagination,
+        }));
       }
     } catch (error: any) {
-      toast.error(`Failed to load ${activeTab} campaigns`);
+      const errorMessage = error.response?.data?.message || error.message || `Failed to load ${activeTab} campaigns`;
+      toast.error(errorMessage);
     } finally {
       setCampaignsLoading(false);
+      loadingRef.current = false;
     }
   };
 

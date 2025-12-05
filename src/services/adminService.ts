@@ -1,16 +1,14 @@
 import api from './api';
+import { ApiResponse, PaginatedResponse, extractData, extractPaginatedData } from '../utils/apiResponse';
 
 interface CampaignsResponse {
   campaigns: any[];
-  pagination?: {
+  pagination: {
     page: number;
     limit: number;
     total: number;
     pages: number;
   };
-  total?: number;
-  page?: number;
-  limit?: number;
 }
 
 interface StatsResponse {
@@ -58,48 +56,60 @@ interface CategoriesResponse {
 
 export const adminService = {
   getPendingCampaigns: async (status: string = 'pending', page: number = 1, limit: number = 10): Promise<CampaignsResponse> => {
-    const response = await api.get<CampaignsResponse>('/admin/campaigns', { params: { status, page, limit } });
-    return response.data;
+    const response = await api.get<PaginatedResponse>('/admin/campaigns', { params: { status, page, limit } });
+    const { items, pagination } = extractPaginatedData(response.data);
+    return {
+      campaigns: items,
+      pagination,
+    };
   },
 
   approveCampaign: async (id: string): Promise<{ campaign: any }> => {
-    const response = await api.put<{ campaign: any }>(`/admin/campaign/${id}/approve`);
-    return response.data;
+    const response = await api.put<ApiResponse<{ campaign: any }>>(`/admin/campaign/${id}/approve`);
+    return extractData(response.data);
   },
 
   rejectCampaign: async (id: string, rejectionReason: string): Promise<{ campaign: any }> => {
-    const response = await api.put<{ campaign: any }>(`/admin/campaign/${id}/reject`, { rejectionReason });
-    return response.data;
+    const response = await api.put<ApiResponse<{ campaign: any }>>(`/admin/campaign/${id}/reject`, { rejectionReason });
+    return extractData(response.data);
   },
 
   getStats: async (): Promise<StatsResponse> => {
-    const response = await api.get<StatsResponse>('/admin/stats');
-    return response.data;
+    const response = await api.get<ApiResponse<StatsResponse>>('/admin/stats');
+    return extractData(response.data);
   },
 
   getAllUsers: async (params: { page?: number; limit?: number; search?: string } = {}): Promise<UsersResponse> => {
-    const response = await api.get<UsersResponse>('/admin/users', { params });
-    return response.data;
+    const response = await api.get<PaginatedResponse>('/admin/users', { params });
+    const { items, pagination } = extractPaginatedData(response.data);
+    return {
+      users: items,
+      total: pagination.total,
+    };
   },
 
   getAllDonations: async (params: { page?: number; limit?: number; campaignId?: string } = {}): Promise<DonationsResponse> => {
-    const response = await api.get<DonationsResponse>('/admin/donations', { params });
-    return response.data;
+    const response = await api.get<PaginatedResponse>('/admin/donations', { params });
+    const { items, pagination } = extractPaginatedData(response.data);
+    return {
+      donations: items,
+      total: pagination.total,
+    };
   },
 
   createCategory: async (categoryData: CategoryData): Promise<CategoryResponse> => {
-    const response = await api.post<CategoryResponse>('/admin/categories', categoryData);
-    return response.data;
+    const response = await api.post<ApiResponse<CategoryResponse>>('/admin/categories', categoryData);
+    return extractData(response.data);
   },
 
   getAllCategories: async (): Promise<CategoriesResponse> => {
-    const response = await api.get<CategoriesResponse>('/admin/categories');
-    return response.data;
+    const response = await api.get<ApiResponse<CategoriesResponse>>('/admin/categories');
+    return extractData(response.data);
   },
 
   deleteCategory: async (id: string): Promise<{ message: string }> => {
-    const response = await api.delete<{ message: string }>(`/admin/categories/${id}`);
-    return response.data;
+    const response = await api.delete<ApiResponse<{ message: string }>>(`/admin/categories/${id}`);
+    return extractData(response.data);
   },
 };
 

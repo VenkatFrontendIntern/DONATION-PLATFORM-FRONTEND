@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { Users, TrendingUp, Heart } from 'lucide-react';
 import { AnimatedCounter } from './AnimatedCounter';
+import { statsService } from '../../services/statsService';
+import { CURRENCY_SYMBOL } from '../../constants';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -30,11 +32,51 @@ const itemVariants = {
 export const StatsSection: React.FC = () => {
   const statsRef = useRef(null);
   const isStatsInView = useInView(statsRef, { once: true, margin: "-100px" });
+  const [platformStats, setPlatformStats] = useState({
+    uniqueDonors: 0,
+    totalAmount: 0,
+    totalCampaigns: 0,
+  });
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const stats = await statsService.getPublicStats();
+        setPlatformStats({
+          uniqueDonors: stats.uniqueDonors,
+          totalAmount: stats.totalAmount,
+          totalCampaigns: stats.totalCampaigns,
+        });
+      } catch (error) {
+        console.error('Failed to load stats:', error);
+        // Keep default values of 0 if API fails
+      }
+    };
+    loadStats();
+  }, []);
 
   const stats = [
-    { icon: Users, value: 1200, suffix: '+', label: 'Active Donors', color: 'from-blue-500 to-blue-600' },
-    { icon: TrendingUp, value: 50000, suffix: '+', label: 'Raised (₹)', color: 'from-primary-500 to-primary-600' },
-    { icon: Heart, value: 150, suffix: '+', label: 'Campaigns Funded', color: 'from-pink-500 to-pink-600' },
+    { 
+      icon: Users, 
+      value: platformStats.uniqueDonors, 
+      suffix: '+', 
+      label: 'Active Donors', 
+      color: 'from-blue-500 to-blue-600' 
+    },
+    { 
+      icon: TrendingUp, 
+      value: Math.floor(platformStats.totalAmount / 1000), 
+      suffix: 'K+', 
+      label: `Raised (${CURRENCY_SYMBOL})`, 
+      color: 'from-primary-500 to-primary-600' 
+    },
+    { 
+      icon: Heart, 
+      value: platformStats.totalCampaigns, 
+      suffix: '+', 
+      label: 'Campaigns Funded', 
+      color: 'from-pink-500 to-pink-600' 
+    },
   ];
 
   return (

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { PasswordInput } from '../components/ui/PasswordInput';
 import { useAuth } from '../contexts/AuthContext';
 import { validators } from '../utils/validators';
 import toast from 'react-hot-toast';
@@ -22,6 +23,11 @@ const Login: React.FC = () => {
       return;
     }
 
+    if (!password || password.trim() === '') {
+      toast.error('Please enter your password');
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await login(email, password);
@@ -35,7 +41,18 @@ const Login: React.FC = () => {
         navigate('/dashboard');
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Login failed');
+      // Handle different types of errors
+      if (error.response) {
+        // Server responded with error
+        const errorMessage = error.response.data?.message || error.response.data?.error || 'Login failed';
+        toast.error(errorMessage);
+      } else if (error.request) {
+        // Request was made but no response received (network error)
+        toast.error('Network error. Please check your connection and try again.');
+      } else {
+        // Something else happened
+        toast.error(error.message || 'An unexpected error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -65,21 +82,12 @@ const Login: React.FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <Input 
+          <PasswordInput 
             label="Password" 
-            type="password" 
             required 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center text-gray-600 cursor-pointer">
-              <input type="checkbox" className="mr-2 rounded text-primary-600 focus:ring-primary-500"/>
-              Remember me
-            </label>
-            <Link to="/forgot-password" className="text-primary-600 hover:underline">Forgot password?</Link>
-          </div>
 
           <Button type="submit" fullWidth size="lg" loading={loading}>
             Sign In

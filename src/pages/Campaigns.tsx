@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { campaignService } from '../services/campaignService';
 import { CampaignCard } from '../components/campaign/CampaignCard';
-import { Search, Filter, AlertCircle, RefreshCw } from 'lucide-react';
+import { Search, Filter, AlertCircle, RefreshCw, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from '../components/ui/Button';
 import { Pagination } from '../components/ui/Pagination';
@@ -119,7 +119,9 @@ const Campaigns: React.FC = () => {
       });
     } catch (error: any) {
       console.error('❌ Error loading campaigns:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to load campaigns. Please check your connection.';
+      // Extract error message from standardized response format
+      const errorData = error.response?.data;
+      const errorMessage = errorData?.message || error.message || 'Failed to load campaigns. Please check your connection.';
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -140,7 +142,7 @@ const Campaigns: React.FC = () => {
 
         {/* Filters & Search */}
         <div className="bg-white p-4 rounded-xl shadow-sm mb-8 sticky top-20 z-30">
-          <div className="flex flex-col md:flex-row gap-4 justify-between">
+          <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
             
             {/* Search */}
             <div className="relative flex-1">
@@ -150,64 +152,29 @@ const Campaigns: React.FC = () => {
               <input
                 type="text"
                 placeholder="Search fundraisers..."
-                className="pl-10 block w-full border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 sm:text-sm py-2 border"
+                className="pl-10 block w-full border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 sm:text-sm py-2 border h-[42px]"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
-            {/* Categories - Desktop */}
-            <div className="hidden md:flex gap-2 overflow-x-auto no-scrollbar pb-1">
-              <button
-                onClick={() => setSelectedCategory('')}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                  !selectedCategory
-                    ? 'bg-primary-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+            {/* Category Dropdown */}
+            <div className="relative w-full sm:w-auto sm:min-w-[200px]">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-10 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 cursor-pointer w-full sm:w-auto h-[42px]"
               >
-                All
-              </button>
-              {categories.map((cat) => (
-                <button
-                  key={cat._id}
-                  onClick={() => setSelectedCategory(cat._id)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                    selectedCategory === cat._id
-                      ? 'bg-primary-600 text-white shadow-md'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {cat.name}
-                </button>
-              ))}
-            </div>
-
-            {/* Categories - Mobile */}
-            <div className="md:hidden flex gap-2 overflow-x-auto no-scrollbar pb-2">
-              <button
-                onClick={() => setSelectedCategory('')}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border ${
-                  !selectedCategory
-                    ? 'bg-primary-600 text-white border-primary-600'
-                    : 'bg-white text-gray-600 border-gray-300'
-                }`}
-              >
-                All
-              </button>
-              {categories.map((cat) => (
-                <button
-                  key={cat._id}
-                  onClick={() => setSelectedCategory(cat._id)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border ${
-                    selectedCategory === cat._id
-                      ? 'bg-primary-600 text-white border-primary-600'
-                      : 'bg-white text-gray-600 border-gray-300'
-                  }`}
-                >
-                  {cat.name}
-                </button>
-              ))}
+                <option value="">All Categories</option>
+                {categories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <ChevronDown className="h-5 w-5 text-gray-400" />
+              </div>
             </div>
 
           </div>
