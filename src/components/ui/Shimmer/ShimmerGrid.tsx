@@ -8,6 +8,7 @@ interface ShimmerGridProps {
   className?: string;
   showImage?: boolean;
   showProgress?: boolean;
+  animationType?: 'default' | 'wave' | 'pulse' | 'glow' | 'fade' | 'slide';
 }
 
 export const ShimmerGrid: React.FC<ShimmerGridProps> = ({
@@ -16,6 +17,7 @@ export const ShimmerGrid: React.FC<ShimmerGridProps> = ({
   className,
   showImage = true,
   showProgress = true,
+  animationType = 'default',
 }) => {
   const gridCols = {
     1: 'grid-cols-1',
@@ -37,6 +39,7 @@ export const ShimmerGrid: React.FC<ShimmerGridProps> = ({
           <ShimmerCard
             showImage={showImage}
             showProgress={showProgress}
+            animationType={animationType}
           />
         </div>
       ))}

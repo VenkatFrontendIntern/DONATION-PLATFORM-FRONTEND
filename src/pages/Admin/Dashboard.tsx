@@ -84,18 +84,18 @@ const AdminDashboard: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <Shimmer className="h-8 w-48 rounded mb-2" />
-              <Shimmer className="h-4 w-32 rounded" />
+              <Shimmer className="h-8 w-48 rounded mb-2" animationType="glow" />
+              <Shimmer className="h-4 w-32 rounded" animationType="glow" />
             </div>
           </div>
-          <ShimmerStats count={5} className="mb-8" />
+          <ShimmerStats count={5} className="mb-8" animationType="glow" />
           <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-            <Shimmer className="h-6 w-40 rounded mb-4" />
-            <ShimmerText lines={3} className="mb-4" />
+            <Shimmer className="h-6 w-40 rounded mb-4" animationType="glow" />
+            <ShimmerText lines={3} className="mb-4" animationType="glow" />
           </div>
           <div className="bg-white rounded-xl shadow-sm p-6">
-            <Shimmer className="h-6 w-32 rounded mb-4" />
-            <ShimmerList items={5} />
+            <Shimmer className="h-6 w-32 rounded mb-4" animationType="glow" />
+            <ShimmerList items={5} animationType="glow" />
           </div>
         </div>
       </div>

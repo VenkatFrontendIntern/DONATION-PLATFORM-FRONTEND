@@ -124,7 +124,7 @@ export const Dashboard: React.FC = () => {
         <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
         {loading ? (
-          <ShimmerList items={3} />
+          <ShimmerList items={3} animationType="wave" />
         ) : activeTab === 'donations' ? (
           <DonationsList
             donations={donations}

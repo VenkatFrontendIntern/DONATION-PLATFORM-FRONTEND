@@ -159,12 +159,112 @@ input[type="number"] {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
 }
 
+/* Dashboard Page - Wave Effect (Vertical) */
+@keyframes shimmer-wave {
+  0% {
+    transform: translateY(-100%) scaleY(0.5);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(200%) scaleY(0.5);
+    opacity: 0;
+  }
+}
+
+.animate-shimmer-wave {
+  animation: shimmer-wave 2s infinite;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+/* Campaigns Page - Pulse Effect */
+@keyframes shimmer-pulse-strong {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+.animate-shimmer-pulse-strong {
+  animation: shimmer-pulse-strong 1.5s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+/* Admin Dashboard - Glow Effect */
+@keyframes shimmer-glow {
+  0% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+    opacity: 0.7;
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.4);
+    opacity: 1;
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+    opacity: 0.7;
+  }
+}
+
+.animate-shimmer-glow {
+  animation: shimmer-glow 2.5s ease-in-out infinite;
+  will-change: box-shadow, opacity;
+}
+
+/* Campaign Detail - Fade Effect */
+@keyframes shimmer-fade {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-shimmer-fade {
+  animation: shimmer-fade 2s ease-in-out infinite;
+  will-change: opacity;
+}
+
+/* Home Page - Slide Effect */
+@keyframes shimmer-slide {
+  0% {
+    transform: translateX(-100%) scaleX(0.3);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(300%) scaleX(0.3);
+    opacity: 0;
+  }
+}
+
+.animate-shimmer-slide {
+  animation: shimmer-slide 2.2s infinite;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
 /* Respect reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
   .animate-shimmer,
   .animate-shimmer-delayed,
   .animate-shimmer-pulse,
-  .animate-shimmer-card-fade {
+  .animate-shimmer-card-fade,
+  .animate-shimmer-wave,
+  .animate-shimmer-pulse-strong,
+  .animate-shimmer-glow,
+  .animate-shimmer-fade,
+  .animate-shimmer-slide {
     animation: none;
   }
   

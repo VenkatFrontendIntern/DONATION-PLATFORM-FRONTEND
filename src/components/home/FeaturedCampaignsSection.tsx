@@ -70,7 +70,7 @@ export const FeaturedCampaignsSection: React.FC<FeaturedCampaignsSectionProps> =
         </motion.div>
 
         {loading ? (
-          <ShimmerGrid items={3} columns={3} />
+          <ShimmerGrid items={3} columns={3} animationType="slide" />
         ) : (
           <motion.div 
             className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"

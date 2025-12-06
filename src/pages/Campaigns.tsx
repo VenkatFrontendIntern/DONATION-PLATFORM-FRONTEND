@@ -176,7 +176,7 @@ const Campaigns: React.FC = () => {
 
         {/* Results */}
         {loading ? (
-          <ShimmerGrid items={12} columns={3} />
+          <ShimmerGrid items={12} columns={3} animationType="pulse" />
         ) : error ? (
           <div className="text-center py-12 sm:py-16 md:py-20 bg-white/80 backdrop-blur-xl rounded-2xl border border-gray-200 shadow-sm">
             <div className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-red-400 mb-4">

@@ -7,6 +7,7 @@ interface ShimmerTextProps {
   className?: string;
   lineHeight?: 'sm' | 'md' | 'lg';
   widths?: string[];
+  animationType?: 'default' | 'wave' | 'pulse' | 'glow' | 'fade' | 'slide';
 }
 
 export const ShimmerText: React.FC<ShimmerTextProps> = ({
@@ -14,6 +15,7 @@ export const ShimmerText: React.FC<ShimmerTextProps> = ({
   className,
   lineHeight = 'md',
   widths = [],
+  animationType = 'default',
 }) => {
   const heightClasses = {
     sm: 'h-3',
@@ -34,6 +36,7 @@ export const ShimmerText: React.FC<ShimmerTextProps> = ({
           <div key={index} style={{ width } as React.CSSProperties}>
             <Shimmer
               className={heightClasses[lineHeight]}
+              animationType={animationType}
             />
           </div>
         );

@@ -66,7 +66,7 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
           <Shimmer className="h-6 w-48 rounded" />
         </div>
         <div className="p-6">
-          <ShimmerList items={5} />
+          <ShimmerList items={5} animationType="glow" />
         </div>
       </div>
     );

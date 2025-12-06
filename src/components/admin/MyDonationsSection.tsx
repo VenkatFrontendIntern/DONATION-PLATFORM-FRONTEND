@@ -32,7 +32,7 @@ export const MyDonationsSection: React.FC<MyDonationsSectionProps> = ({
       </div>
       {loading ? (
         <div className="p-6">
-          <ShimmerList items={3} />
+          <ShimmerList items={3} animationType="glow" />
         </div>
       ) : donations.length === 0 ? (
         <div className="text-center py-10">

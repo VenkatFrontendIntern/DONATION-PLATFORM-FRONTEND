@@ -41,7 +41,7 @@ export const MyCampaignsSection: React.FC<MyCampaignsSectionProps> = ({
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[1, 2].map((i) => (
-              <ShimmerCard key={i} />
+              <ShimmerCard key={i} animationType="glow" />
             ))}
           </div>
         </div>
