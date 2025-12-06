@@ -58,23 +58,20 @@ export const AboutHeroSection: React.FC = () => {
           </motion.div>
 
           <motion.div
-            className="relative"
+            className="relative flex items-center justify-center"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
-              <img 
-                src={engalaImage} 
-                alt="Sri Engala Venkatram Reddy - KUDA Chairman" 
-                className="w-full h-[500px] object-cover"
-                loading="lazy"
-                decoding="async"
-                fetchPriority="low"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
-            </div>
+            <img 
+              src={engalaImage} 
+              alt="Sri Engala Venkatram Reddy - KUDA Chairman" 
+              className="w-full max-w-md h-auto object-contain drop-shadow-lg"
+              loading="lazy"
+              decoding="async"
+              fetchPriority="low"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
           </motion.div>
         </div>
       </div>

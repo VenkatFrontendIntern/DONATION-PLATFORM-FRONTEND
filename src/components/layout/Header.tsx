@@ -44,7 +44,7 @@ export const Header: React.FC = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`text-sm font-medium transition-colors hover:text-primary-600 ${
+                className={`text-sm font-bold transition-colors hover:text-primary-600 ${
                   isActive(link.path) ? 'text-primary-600' : 'text-gray-500'
                 }`}
               >
@@ -59,25 +59,25 @@ export const Header: React.FC = () => {
               <>
                 <Link
                   to={user?.role === 'admin' ? '/admin' : '/dashboard'}
-                  className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+                  className="flex items-center gap-2 text-sm font-bold text-gray-600 hover:text-gray-900"
                 >
                   <UserIcon size={18} />
                   {user?.role === 'admin' ? 'Admin Dashboard' : 'Dashboard'}
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900"
+                  className="text-sm font-bold text-gray-600 hover:text-gray-900"
                 >
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <Link to="/login" className="text-sm font-medium text-gray-600 hover:text-gray-900">
+                <Link to="/login" className="text-sm font-bold text-gray-600 hover:text-gray-900">
                   Sign In
                 </Link>
                 <Link to="/signup">
-                  <button className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
+                  <button className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors">
                     Sign Up
                   </button>
                 </Link>
@@ -106,7 +106,7 @@ export const Header: React.FC = () => {
                 key={link.path}
                 to={link.path}
                 onClick={() => setIsMenuOpen(false)}
-                className={`block px-3 py-2 rounded-lg text-base font-medium ${
+                className={`block px-3 py-2 rounded-lg text-base font-bold ${
                   isActive(link.path) 
                     ? 'bg-primary-50 text-primary-600' 
                     : 'text-gray-600 hover:bg-gray-50'
@@ -121,13 +121,13 @@ export const Header: React.FC = () => {
                   <Link
                     to={user?.role === 'admin' ? '/admin' : '/dashboard'}
                     onClick={() => setIsMenuOpen(false)}
-                    className="block w-full text-center px-4 py-2 text-gray-600 font-medium mb-2"
+                    className="block w-full text-center px-4 py-2 text-gray-600 font-bold mb-2"
                   >
                     {user?.role === 'admin' ? 'Admin Dashboard' : 'My Dashboard'}
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="block w-full text-center px-4 py-2 bg-red-50 text-red-600 rounded-lg font-medium"
+                    className="block w-full text-center px-4 py-2 bg-red-50 text-red-600 rounded-lg font-bold"
                   >
                     <LogOut size={16} className="inline mr-2" />
                     Logout
@@ -138,14 +138,14 @@ export const Header: React.FC = () => {
                   <Link
                     to="/login"
                     onClick={() => setIsMenuOpen(false)}
-                    className="block w-full text-center px-4 py-2 text-gray-600 font-medium mb-2"
+                    className="block w-full text-center px-4 py-2 text-gray-600 font-bold mb-2"
                   >
                     Sign In
                   </Link>
                   <Link
                     to="/signup"
                     onClick={() => setIsMenuOpen(false)}
-                    className="block w-full text-center px-4 py-2 bg-primary-600 text-white rounded-lg font-medium"
+                    className="block w-full text-center px-4 py-2 bg-primary-600 text-white rounded-lg font-bold"
                   >
                     Join Now
                   </Link>
