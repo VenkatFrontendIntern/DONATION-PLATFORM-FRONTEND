@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from './Header';
-import { BottomNav } from './BottomNav';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -22,7 +21,7 @@ export const Layout: React.FC<LayoutProps> = React.memo(({
       </main>
       {showFooter && (
         <>
-          <footer className="bg-gray-900 text-gray-400 pt-6 sm:pt-8 md:pt-12 pb-24 md:pb-12">
+          <footer className="bg-gray-900 text-gray-400 pt-6 sm:pt-8 md:pt-12 pb-12">
             <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-8">
               <div>
                 <h3 className="text-white font-bold text-lg mb-4">Engala Trust</h3>
@@ -50,7 +49,6 @@ export const Layout: React.FC<LayoutProps> = React.memo(({
               </div>
             </div>
           </footer>
-          <BottomNav />
         </>
       )}
     </div>

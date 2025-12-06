@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Heart, User as UserIcon, LogOut } from 'lucide-react';
+import { Menu, X, Heart, User as UserIcon, LogOut, Home, Search, PlusSquare, Info, Shield } from 'lucide-react';
 import { APP_NAME } from '../../constants';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -11,10 +11,10 @@ export const Header: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
 
   const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'Explore', path: '/campaigns' },
-    { name: 'About Us', path: '/about' },
-    { name: 'Start a Fundraiser', path: '/start-campaign' },
+    { name: 'Home', path: '/', icon: Home },
+    { name: 'Explore', path: '/campaigns', icon: Search },
+    { name: 'About Us', path: '/about', icon: Info },
+    { name: 'Start a Fundraiser', path: '/start-campaign', icon: PlusSquare },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -107,34 +107,43 @@ export const Header: React.FC = () => {
                 key={link.path}
                 to={link.path}
                 onClick={() => setIsMenuOpen(false)}
-                className={`block px-3 py-3 rounded-lg text-base font-semibold touch-manipulation min-h-[44px] flex items-center ${
+                className={`block px-3 py-3 rounded-lg text-base font-semibold touch-manipulation min-h-[44px] flex items-center gap-3 ${
                   isActive(link.path) 
                     ? 'bg-primary-50 text-primary-600' 
                     : 'text-gray-700 active:bg-gray-50'
                 }`}
               >
+                <link.icon size={20} strokeWidth={isActive(link.path) ? 2.5 : 2} />
                 {link.name}
               </Link>
             ))}
+            {isAuthenticated && (
+              <Link
+                to={user?.role === 'admin' ? '/admin' : '/dashboard'}
+                onClick={() => setIsMenuOpen(false)}
+                className={`block px-3 py-3 rounded-lg text-base font-semibold touch-manipulation min-h-[44px] flex items-center gap-3 ${
+                  isActive(user?.role === 'admin' ? '/admin' : '/dashboard')
+                    ? 'bg-primary-50 text-primary-600'
+                    : 'text-gray-700 active:bg-gray-50'
+                }`}
+              >
+                {user?.role === 'admin' ? (
+                  <Shield size={20} strokeWidth={isActive('/admin') ? 2.5 : 2} />
+                ) : (
+                  <UserIcon size={20} strokeWidth={isActive('/dashboard') ? 2.5 : 2} />
+                )}
+                {user?.role === 'admin' ? 'Admin' : 'Profile'}
+              </Link>
+            )}
             <div className="border-t border-gray-200 my-3 pt-3">
               {isAuthenticated ? (
-                <>
-                  <Link
-                    to={user?.role === 'admin' ? '/admin' : '/dashboard'}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="block px-3 py-3 rounded-lg text-base font-semibold text-gray-700 active:bg-gray-50 touch-manipulation min-h-[44px] flex items-center gap-2 mb-2"
-                  >
-                    <UserIcon size={20} />
-                    {user?.role === 'admin' ? 'Admin Dashboard' : 'My Dashboard'}
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="block w-full px-3 py-3 bg-red-50 text-red-600 rounded-lg font-semibold text-base active:bg-red-100 touch-manipulation min-h-[44px] flex items-center justify-center gap-2"
-                  >
-                    <LogOut size={20} />
-                    Logout
-                  </button>
-                </>
+                <button
+                  onClick={handleLogout}
+                  className="block w-full px-3 py-3 bg-red-50 text-red-600 rounded-lg font-semibold text-base active:bg-red-100 touch-manipulation min-h-[44px] flex items-center justify-center gap-2"
+                >
+                  <LogOut size={20} />
+                  Logout
+                </button>
               ) : (
                 <>
                   <Link
