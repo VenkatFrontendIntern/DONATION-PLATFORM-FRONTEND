@@ -18,11 +18,8 @@ export const ImagesStep: React.FC<StepProps> = ({
   handleGalleryImagesChange,
   removeImage,
 }) => {
-  if (currentStep !== 4) return null;
-
   return (
     <motion.div
-      key="step4"
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}

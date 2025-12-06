@@ -14,11 +14,8 @@ export const BasicInfoStep: React.FC<StepProps> = ({
   formData,
   handleChange,
 }) => {
-  if (currentStep !== 1) return null;
-
   return (
     <motion.div
-      key="step1"
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}

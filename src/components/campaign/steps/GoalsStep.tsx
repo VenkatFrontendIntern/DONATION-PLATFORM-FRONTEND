@@ -15,11 +15,8 @@ export const GoalsStep: React.FC<StepProps> = ({
   formData,
   handleChange,
 }) => {
-  if (currentStep !== 3) return null;
-
   return (
     <motion.div
-      key="step3"
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}

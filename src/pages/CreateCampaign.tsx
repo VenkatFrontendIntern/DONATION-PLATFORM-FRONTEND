@@ -88,11 +88,11 @@ const CreateCampaign: React.FC = () => {
 
         <form onSubmit={handleFormSubmit} className="space-y-4 sm:space-y-6">
           <AnimatePresence mode="wait">
-            <BasicInfoStep {...stepProps} />
-            <CategoryStep {...stepProps} />
-            <GoalsStep {...stepProps} />
-            <ImagesStep {...stepProps} />
-            <SocialMediaStep {...stepProps} />
+            {currentStep === 1 && <BasicInfoStep key="step-1" {...stepProps} />}
+            {currentStep === 2 && <CategoryStep key="step-2" {...stepProps} />}
+            {currentStep === 3 && <GoalsStep key="step-3" {...stepProps} />}
+            {currentStep === 4 && <ImagesStep key="step-4" {...stepProps} />}
+            {currentStep === 5 && <SocialMediaStep key="step-5" {...stepProps} />}
           </AnimatePresence>
 
           <CreateCampaignNavigation
