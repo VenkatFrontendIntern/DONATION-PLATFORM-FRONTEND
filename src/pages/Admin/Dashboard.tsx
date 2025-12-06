@@ -11,7 +11,7 @@ import { MyCampaignsSection } from '../../components/admin/MyCampaignsSection';
 import { MyDonationsSection } from '../../components/admin/MyDonationsSection';
 import { ConfirmModal } from '../../components/ui/ConfirmModal';
 import toast from 'react-hot-toast';
-import { ShimmerStats, ShimmerText, Shimmer } from '../../components/ui/Shimmer';
+import { ShimmerStats, ShimmerText, Shimmer, ShimmerList } from '../../components/ui/Shimmer';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
