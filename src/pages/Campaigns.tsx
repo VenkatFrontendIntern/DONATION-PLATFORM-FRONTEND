@@ -30,7 +30,7 @@ const Campaigns: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -77,7 +77,7 @@ const Campaigns: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const params: any = {
         status: 'approved',
         page: currentPage,
@@ -93,10 +93,10 @@ const Campaigns: React.FC = () => {
       }
 
       const response = await campaignService.getAll(params);
-      
+
       setCampaigns(response.campaigns || []);
       setTotalItems(response.total || 0);
-      
+
       // Calculate total pages
       const calculatedPages = response.pages || Math.ceil((response.total || 0) / itemsPerPage);
       setTotalPages(calculatedPages);
@@ -125,7 +125,7 @@ const Campaigns: React.FC = () => {
         {/* Filters & Search */}
         <div className="bg-white p-4 rounded-xl shadow-sm mb-8 sticky top-20 z-30">
           <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
-            
+
             {/* Search */}
             <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -164,9 +164,9 @@ const Campaigns: React.FC = () => {
 
         {/* Results */}
         {loading ? (
-           <div className="flex justify-center items-center h-64">
-             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
-           </div>
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+          </div>
         ) : error ? (
           <div className="text-center py-20 bg-white rounded-xl border border-dashed border-gray-300">
             <div className="mx-auto h-12 w-12 text-red-400 mb-3">
@@ -190,11 +190,16 @@ const Campaigns: React.FC = () => {
         ) : (
           <>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {campaigns.map((campaign) => (
-                <CampaignCard key={campaign._id} campaign={campaign} />
+              {campaigns.map((campaign, index) => (
+                <CampaignCard
+                  key={campaign._id}
+                  campaign={campaign}
+                  index={index}
+                  priority={index < 2}
+                />
               ))}
             </div>
-            
+
             {/* Pagination - Only show when there are multiple pages */}
             {totalPages > 1 ? (
               <div className="mt-8 pt-6">
@@ -213,8 +218,8 @@ const Campaigns: React.FC = () => {
                 <div className="mt-8 pt-6 text-center text-sm text-gray-500">
                   <p>Total campaigns: {totalItems} | Items per page: {itemsPerPage} | Pages: {totalPages}</p>
                   <p className="text-xs text-gray-400 mt-1">
-                    {totalItems <= itemsPerPage 
-                      ? 'Not enough campaigns for pagination (need more than ' + itemsPerPage + ')' 
+                    {totalItems <= itemsPerPage
+                      ? 'Not enough campaigns for pagination (need more than ' + itemsPerPage + ')'
                       : 'Pagination should appear here'}
                   </p>
                 </div>

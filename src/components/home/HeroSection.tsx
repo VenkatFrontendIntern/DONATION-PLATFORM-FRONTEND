@@ -45,20 +45,20 @@ export const HeroSection: React.FC = () => {
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 flex flex-col md:flex-row items-center gap-12">
-        <motion.div 
+        <motion.div
           className="md:w-1/2 space-y-8 z-10"
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           style={{ willChange: 'transform, opacity' }}
         >
-          <motion.div 
+          <motion.div
             className="inline-flex items-center px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-primary-200 text-primary-700 text-sm font-bold shadow-lg"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <motion.span 
+            <motion.span
               className="flex h-2 w-2 bg-primary-600 rounded-full mr-2"
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
@@ -66,19 +66,19 @@ export const HeroSection: React.FC = () => {
             #1 Trusted Crowdfunding Platform
           </motion.div>
 
-          <motion.h1 
+          <motion.h1
             className="text-5xl md:text-7xl font-extrabold text-gray-900 leading-tight"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            Small contributions, <br/>
+            Small contributions, <br />
             <span className="bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
               Big Impact.
             </span>
           </motion.h1>
 
-          <motion.p 
+          <motion.p
             className="text-xl text-gray-600 max-w-lg leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -87,7 +87,7 @@ export const HeroSection: React.FC = () => {
             Join thousands of donors changing lives today. Start a fundraiser for medical emergencies, education, or social causes.
           </motion.p>
 
-          <motion.div 
+          <motion.div
             className="flex flex-col sm:flex-row gap-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -106,7 +106,7 @@ export const HeroSection: React.FC = () => {
           </motion.div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="md:w-1/2 relative"
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -114,26 +114,28 @@ export const HeroSection: React.FC = () => {
           style={{ willChange: 'transform, opacity' }}
         >
           <div className="space-y-6">
-            <motion.div 
+            <motion.div
               className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20"
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
               style={{ willChange: 'transform' }}
             >
-              <img 
-                src={homePageImage} 
-                alt="Child in need - Your donation can change a life" 
+              <img
+                src={homePageImage}
+                alt="Child in need - Your donation can change a life"
                 className="w-full h-full object-cover"
                 loading="eager"
                 decoding="async"
                 fetchPriority="high"
+                width={600}
+                height={600}
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
             </motion.div>
-            
+
             {/* Campaign Info Card - Below Image */}
             {featuredCampaign && (
-              <motion.div 
+              <motion.div
                 className="bg-white/90 backdrop-blur-md rounded-2xl p-6 border border-gray-200 shadow-xl"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -152,8 +154,8 @@ export const HeroSection: React.FC = () => {
                   </div>
                 </div>
                 <div className="mb-3">
-                  <ProgressBar 
-                    goal={featuredCampaign.goalAmount} 
+                  <ProgressBar
+                    goal={featuredCampaign.goalAmount}
                     raised={featuredCampaign.raisedAmount}
                     showLabels={false}
                   />
