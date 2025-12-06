@@ -36,6 +36,49 @@ export const useDonation = ({ campaignId, campaignTitle, onSuccess }: UseDonatio
     }
   }, [user, isAuthenticated]);
 
+  // Retry utility for network failures
+  const retryWithBackoff = async <T>(
+    fn: () => Promise<T>,
+    maxRetries: number = 3,
+    baseDelay: number = 1000
+  ): Promise<T> => {
+    let lastError: any;
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        return await fn();
+      } catch (error: any) {
+        lastError = error;
+        
+        // Don't retry on client errors (4xx) - these are not network issues
+        if (error.response?.status >= 400 && error.response?.status < 500) {
+          throw error;
+        }
+        
+        // Check if it's a network error
+        const isNetworkError = 
+          !error.response || // No response means network error
+          error.code === 'ECONNABORTED' ||
+          error.code === 'ETIMEDOUT' ||
+          error.message?.includes('Network Error') ||
+          error.message?.includes('timeout') ||
+          error.message?.includes('network');
+        
+        if (!isNetworkError && attempt < maxRetries - 1) {
+          throw error; // Not a network error, don't retry
+        }
+        
+        if (attempt < maxRetries - 1) {
+          const delay = baseDelay * Math.pow(2, attempt);
+          console.warn(`Network error on attempt ${attempt + 1}, retrying in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
+    }
+    
+    throw lastError;
+  };
+
   const handleDonate = async () => {
     if (!donationAmount || !campaignId) return;
 
@@ -112,24 +155,70 @@ export const useDonation = ({ campaignId, campaignTitle, onSuccess }: UseDonatio
         },
       });
 
-      // Verify payment after successful Razorpay payment
-      await donationService.verifyPayment({
-        donationId: newDonationId,
-        razorpayOrderId: order.id,
-        razorpayPaymentId: razorpayResponse.razorpay_payment_id,
-        razorpaySignature: razorpayResponse.razorpay_signature,
-      });
+      // Verify payment after successful Razorpay payment (with retry for network failures)
+      try {
+        await retryWithBackoff(
+          () => donationService.verifyPayment({
+            donationId: newDonationId,
+            razorpayOrderId: order.id,
+            razorpayPaymentId: razorpayResponse.razorpay_payment_id,
+            razorpaySignature: razorpayResponse.razorpay_signature,
+          }),
+          3,
+          1000
+        );
 
-      setSuccess(true);
-      setShowDonateModal(true); // Reopen modal to show success message
-      toast.success('Donation successful! 80G certificate sent to your email.');
-      onSuccess?.();
+        setSuccess(true);
+        setShowDonateModal(true); // Reopen modal to show success message
+        toast.success('Donation successful! 80G certificate sent to your email.');
+        onSuccess?.();
+      } catch (verifyError: any) {
+        // Check if payment was already verified (idempotency)
+        const errorMessage = getErrorMessage(verifyError);
+        if (errorMessage.includes('already') || verifyError.response?.status === 200) {
+          // Payment was already verified, treat as success
+          setSuccess(true);
+          setShowDonateModal(true);
+          toast.success('Donation verified! 80G certificate sent to your email.');
+          onSuccess?.();
+        } else {
+          // Network error or other error - show warning but payment might have succeeded
+          const isNetworkError = 
+            !verifyError.response ||
+            verifyError.code === 'ECONNABORTED' ||
+            verifyError.message?.includes('Network Error');
+          
+          if (isNetworkError) {
+            toast.error(
+              'Network error occurred during verification. Your payment may have been processed. Please check your email or dashboard for confirmation.',
+              { duration: 6000 }
+            );
+            // Still show success state as payment was completed in Razorpay
+            setSuccess(true);
+            setShowDonateModal(true);
+            onSuccess?.();
+          } else {
+            throw verifyError; // Re-throw non-network errors
+          }
+        }
+      }
     } catch (error: any) {
       // Reopen modal on error
       setShowDonateModal(true);
       // Extract user-friendly error message
       const errorMessage = getErrorMessage(error);
-      toast.error(errorMessage);
+      
+      // Check if it's a network error
+      const isNetworkError = 
+        !error.response ||
+        error.code === 'ECONNABORTED' ||
+        error.message?.includes('Network Error');
+      
+      if (isNetworkError) {
+        toast.error('Network error occurred. Please check your internet connection and try again.', { duration: 5000 });
+      } else {
+        toast.error(errorMessage);
+      }
     } finally {
       setProcessing(false);
     }

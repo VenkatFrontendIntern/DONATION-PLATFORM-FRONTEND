@@ -10,7 +10,7 @@ export const CTASection: React.FC = () => {
   const isCtaInView = useInView(ctaRef, { once: true, margin: "-100px" });
 
   return (
-    <section ref={ctaRef} className="py-16 bg-gradient-to-br from-primary-600 to-primary-800">
+    <section ref={ctaRef} className="pt-12 sm:pt-14 md:pt-16 pb-6 sm:pb-8 md:pb-12 bg-gradient-to-br from-primary-600 to-primary-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

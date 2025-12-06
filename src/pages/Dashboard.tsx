@@ -105,13 +105,13 @@ export const Dashboard: React.FC = () => {
   const totalDonated = donations.reduce((acc, curr) => acc + (curr.amount || 0), 0);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 pb-24">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">My Dashboard</h1>
-          <Link to="/start-campaign">
-            <Button>
-              <Plus size={18} className="mr-2" />
+    <div className="min-h-screen bg-gray-50 py-4 sm:py-6 md:py-8 pb-20 sm:pb-24">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">My Dashboard</h1>
+          <Link to="/start-campaign" className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto min-h-[44px] touch-manipulation text-sm sm:text-base">
+              <Plus size={16} className="sm:w-[18px] sm:h-[18px] mr-1.5 sm:mr-2" />
               Start Campaign
             </Button>
           </Link>

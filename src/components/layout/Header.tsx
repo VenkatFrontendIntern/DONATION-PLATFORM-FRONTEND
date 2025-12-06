@@ -27,15 +27,15 @@ export const Header: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+        <div className="flex justify-between h-14 sm:h-16 items-center">
           
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <div className="bg-primary-50 text-primary-600 p-2 rounded-lg">
-              <Heart className="h-6 w-6 fill-current" />
+          <Link to="/" className="flex items-center gap-1.5 sm:gap-2">
+            <div className="bg-primary-50 text-primary-600 p-1.5 sm:p-2 rounded-lg">
+              <Heart className="h-5 w-5 sm:h-6 sm:w-6 fill-current" />
             </div>
-            <span className="font-bold text-xl text-gray-900">{APP_NAME}</span>
+            <span className="font-bold text-lg sm:text-xl text-gray-900">{APP_NAME}</span>
           </Link>
 
           {/* Desktop Nav */}
@@ -89,7 +89,8 @@ export const Header: React.FC = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
+              className="p-2 text-gray-500 active:bg-gray-100 rounded-lg touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Toggle menu"
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -99,37 +100,38 @@ export const Header: React.FC = () => {
 
       {/* Mobile Menu Dropdown */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white border-b border-gray-100 absolute w-full left-0 top-16 shadow-lg">
-          <div className="px-4 py-4 space-y-3">
+        <div className="md:hidden bg-white border-b border-gray-100 absolute w-full left-0 top-14 sm:top-16 shadow-lg z-50 max-h-[calc(100vh-4rem)] overflow-y-auto">
+          <div className="px-4 py-4 space-y-2">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
                 onClick={() => setIsMenuOpen(false)}
-                className={`block px-3 py-2 rounded-lg text-base font-bold ${
+                className={`block px-3 py-3 rounded-lg text-base font-semibold touch-manipulation min-h-[44px] flex items-center ${
                   isActive(link.path) 
                     ? 'bg-primary-50 text-primary-600' 
-                    : 'text-gray-600 hover:bg-gray-50'
+                    : 'text-gray-700 active:bg-gray-50'
                 }`}
               >
                 {link.name}
               </Link>
             ))}
-            <div className="border-t border-gray-100 my-2 pt-2">
+            <div className="border-t border-gray-200 my-3 pt-3">
               {isAuthenticated ? (
                 <>
                   <Link
                     to={user?.role === 'admin' ? '/admin' : '/dashboard'}
                     onClick={() => setIsMenuOpen(false)}
-                    className="block w-full text-center px-4 py-2 text-gray-600 font-bold mb-2"
+                    className="block px-3 py-3 rounded-lg text-base font-semibold text-gray-700 active:bg-gray-50 touch-manipulation min-h-[44px] flex items-center gap-2 mb-2"
                   >
+                    <UserIcon size={20} />
                     {user?.role === 'admin' ? 'Admin Dashboard' : 'My Dashboard'}
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="block w-full text-center px-4 py-2 bg-red-50 text-red-600 rounded-lg font-bold"
+                    className="block w-full px-3 py-3 bg-red-50 text-red-600 rounded-lg font-semibold text-base active:bg-red-100 touch-manipulation min-h-[44px] flex items-center justify-center gap-2"
                   >
-                    <LogOut size={16} className="inline mr-2" />
+                    <LogOut size={20} />
                     Logout
                   </button>
                 </>
@@ -138,14 +140,14 @@ export const Header: React.FC = () => {
                   <Link
                     to="/login"
                     onClick={() => setIsMenuOpen(false)}
-                    className="block w-full text-center px-4 py-2 text-gray-600 font-bold mb-2"
+                    className="block w-full text-center px-3 py-3 text-gray-700 font-semibold text-base active:bg-gray-50 rounded-lg touch-manipulation min-h-[44px] flex items-center justify-center mb-2"
                   >
                     Sign In
                   </Link>
                   <Link
                     to="/signup"
                     onClick={() => setIsMenuOpen(false)}
-                    className="block w-full text-center px-4 py-2 bg-primary-600 text-white rounded-lg font-bold"
+                    className="block w-full text-center px-3 py-3 bg-primary-600 text-white rounded-lg font-semibold text-base active:bg-primary-700 touch-manipulation min-h-[44px] flex items-center justify-center"
                   >
                     Join Now
                   </Link>
