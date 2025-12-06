@@ -3,7 +3,7 @@ import { Pagination } from '../ui/Pagination';
 import { PendingCampaignCard } from './PendingCampaignCard';
 import { RejectionForm } from './RejectionForm';
 import { EmptyCampaignsState } from './EmptyCampaignsState';
-import { ShimmerList, Shimmer } from '../ui/Shimmer';
+import { ShimmerPendingCampaignsGrid, Shimmer } from '../ui/Shimmer';
 
 interface Campaign {
   _id: string;
@@ -63,11 +63,9 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-6 border-b border-gray-200">
-          <Shimmer className="h-6 w-48 rounded" />
+          <Shimmer className="h-6 w-48 rounded" animationType="glow" />
         </div>
-        <div className="p-6">
-          <ShimmerList items={5} animationType="glow" />
-        </div>
+        <ShimmerPendingCampaignsGrid animationType="glow" items={3} />
       </div>
     );
   }

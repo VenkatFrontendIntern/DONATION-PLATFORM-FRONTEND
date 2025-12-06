@@ -11,7 +11,7 @@ import { DonationsList } from '../components/dashboard/DonationsList';
 import { CampaignsList } from '../components/dashboard/CampaignsList';
 import { getErrorMessage } from '../utils/apiResponse';
 import toast from 'react-hot-toast';
-import { ShimmerList } from '../components/ui/Shimmer';
+import { ShimmerUserDashboard } from '../components/ui/Shimmer';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -102,6 +102,10 @@ export const Dashboard: React.FC = () => {
 
   const totalDonated = donations.reduce((acc, curr) => acc + (curr.amount || 0), 0);
 
+  if (loading) {
+    return <ShimmerUserDashboard animationType="wave" />;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-4 sm:py-6 md:py-8 pb-20 sm:pb-24">
       <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6">
@@ -123,9 +127,7 @@ export const Dashboard: React.FC = () => {
 
         <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {loading ? (
-          <ShimmerList items={3} animationType="wave" />
-        ) : activeTab === 'donations' ? (
+        {activeTab === 'donations' ? (
           <DonationsList
             donations={donations}
             onDownloadCertificate={handleDownloadCertificate}

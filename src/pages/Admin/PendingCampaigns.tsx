@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom';
 import { getImageUrl } from '../../utils/imageUtils';
 import { Campaign as CampaignType } from '../../types';
 import { CURRENCY_SYMBOL } from '../../constants';
-import { ShimmerList, Shimmer } from '../../components/ui/Shimmer';
+import { ShimmerPendingCampaignList } from '../../components/ui/Shimmer';
 
 interface CampaignWithPopulated extends Omit<CampaignType, 'id' | 'category' | 'imageUrl'> {
   _id: string;
@@ -82,24 +82,7 @@ const PendingCampaigns: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8 pb-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-6">
-            <Shimmer className="h-8 w-64 rounded mb-2" animationType="glow" />
-            <Shimmer className="h-4 w-48 rounded" animationType="glow" />
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <Shimmer className="h-6 w-48 rounded" animationType="glow" />
-            </div>
-            <div className="p-6">
-              <ShimmerList items={5} animationType="glow" />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <ShimmerPendingCampaignList animationType="glow" items={5} />;
   }
 
   return (

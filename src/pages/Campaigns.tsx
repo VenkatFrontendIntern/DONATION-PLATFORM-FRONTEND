@@ -5,7 +5,7 @@ import { Search, Filter, AlertCircle, RefreshCw, ChevronDown } from 'lucide-reac
 import toast from 'react-hot-toast';
 import { Button } from '../components/ui/Button';
 import { Pagination } from '../components/ui/Pagination';
-import { ShimmerGrid } from '../components/ui/Shimmer';
+import { ShimmerCampaignsPage } from '../components/ui/Shimmer';
 
 interface CampaignWithPopulated {
   _id: string;
@@ -111,6 +111,10 @@ const Campaigns: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  if (loading) {
+    return <ShimmerCampaignsPage animationType="pulse" />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50 py-4 sm:py-6 md:py-8 pb-20 sm:pb-24 md:pb-12">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
@@ -165,7 +169,7 @@ const Campaigns: React.FC = () => {
         </div>
 
         {/* Results Count */}
-        {!loading && campaigns.length > 0 && (
+        {campaigns.length > 0 && (
           <div className="mb-4 sm:mb-6">
             <p className="text-sm sm:text-base text-gray-600">
               Showing <span className="font-semibold text-gray-900">{campaigns.length}</span> of{' '}
@@ -175,9 +179,7 @@ const Campaigns: React.FC = () => {
         )}
 
         {/* Results */}
-        {loading ? (
-          <ShimmerGrid items={12} columns={3} animationType="pulse" />
-        ) : error ? (
+        {error ? (
           <div className="text-center py-12 sm:py-16 md:py-20 bg-white/80 backdrop-blur-xl rounded-2xl border border-gray-200 shadow-sm">
             <div className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-red-400 mb-4">
               <AlertCircle size={48} className="w-full h-full" />

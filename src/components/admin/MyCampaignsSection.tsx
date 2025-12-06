@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Trash2, Plus } from 'lucide-react';
 import { CURRENCY_SYMBOL } from '../../constants';
 import { Button } from '../ui/Button';
-import { ShimmerCard } from '../ui/Shimmer';
+import { ShimmerMyCampaignsSection } from '../ui/Shimmer';
 
 interface Campaign {
   _id: string;
@@ -38,13 +38,7 @@ export const MyCampaignsSection: React.FC<MyCampaignsSectionProps> = ({
         </Link>
       </div>
       {loading ? (
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[1, 2].map((i) => (
-              <ShimmerCard key={i} animationType="glow" />
-            ))}
-          </div>
-        </div>
+        <ShimmerMyCampaignsSection animationType="glow" />
       ) : campaigns.length === 0 ? (
         <div className="text-center py-10">
           <p className="text-gray-500 mb-4">You haven't created any campaigns yet.</p>

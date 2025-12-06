@@ -11,7 +11,7 @@ import { MyCampaignsSection } from '../../components/admin/MyCampaignsSection';
 import { MyDonationsSection } from '../../components/admin/MyDonationsSection';
 import { ConfirmModal } from '../../components/ui/ConfirmModal';
 import toast from 'react-hot-toast';
-import { ShimmerStats, ShimmerText, Shimmer, ShimmerList } from '../../components/ui/Shimmer';
+import { ShimmerAdminDashboard } from '../../components/ui/Shimmer';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -79,27 +79,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8 pb-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <Shimmer className="h-8 w-48 rounded mb-2" animationType="glow" />
-              <Shimmer className="h-4 w-32 rounded" animationType="glow" />
-            </div>
-          </div>
-          <ShimmerStats count={5} className="mb-8" animationType="glow" />
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-            <Shimmer className="h-6 w-40 rounded mb-4" animationType="glow" />
-            <ShimmerText lines={3} className="mb-4" animationType="glow" />
-          </div>
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <Shimmer className="h-6 w-32 rounded mb-4" animationType="glow" />
-            <ShimmerList items={5} animationType="glow" />
-          </div>
-        </div>
-      </div>
-    );
+    return <ShimmerAdminDashboard animationType="glow" statsCount={stats?.campaigns.rejected !== undefined ? 5 : 4} />;
   }
 
   return (
