@@ -10,7 +10,7 @@ export const ShimmerCampaignDetail: React.FC = () => {
       <div className="max-w-5xl mx-auto md:py-8 px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2 space-y-6">
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden animate-shimmer-card-fade">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
               <Shimmer className="h-64 md:h-96 w-full rounded-none" variant="bright" animationType={animationType} />
               <div className="p-6">
                 <ShimmerText lines={2} lineHeight="lg" className="mb-4" animationType={animationType} />
@@ -19,19 +19,19 @@ export const ShimmerCampaignDetail: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm p-6 animate-shimmer-card-fade" style={{ animationDelay: '0.1s' }}>
+            <div className="bg-white rounded-xl shadow-sm p-6">
               <Shimmer className="h-16 w-16 rounded-full mb-4" variant="bright" animationType={animationType} />
               <ShimmerText lines={2} lineHeight="md" animationType={animationType} />
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm p-6 animate-shimmer-card-fade" style={{ animationDelay: '0.2s' }}>
+            <div className="bg-white rounded-xl shadow-sm p-6">
               <Shimmer className="h-6 w-32 rounded mb-4" animationType={animationType} />
               <ShimmerList items={3} animationType={animationType} />
             </div>
           </div>
 
           <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-sm p-6 sticky top-8 animate-shimmer-card-fade" style={{ animationDelay: '0.15s' }}>
+            <div className="bg-white rounded-xl shadow-sm p-6 sticky top-8">
               <ShimmerText lines={1} lineHeight="lg" className="mb-6" animationType={animationType} />
               <Shimmer className="h-12 w-full rounded mb-4" variant="bright" animationType={animationType} />
               <Shimmer className="h-2 w-full rounded-full mb-4" animationType={animationType} />
