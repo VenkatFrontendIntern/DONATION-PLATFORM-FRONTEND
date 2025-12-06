@@ -18,6 +18,7 @@ const api: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Enable sending cookies (for refreshToken httpOnly cookie)
 });
 
 api.interceptors.request.use(
@@ -43,31 +44,21 @@ api.interceptors.response.use(
     const isOnLoginPage = window.location.pathname === '/login' || window.location.pathname === '/signup';
 
     if (error.response?.status === 401 && !isPublicEndpoint && !isOnLoginPage) {
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (refreshToken) {
-        try {
-          const response = await axios.post(`${API_URL}/auth/refresh`, {
-            refreshToken,
-          });
-          const responseData = response.data.data || response.data;
-          const { token, refreshToken: newRefreshToken } = responseData;
-          localStorage.setItem('token', token);
-          localStorage.setItem('refreshToken', newRefreshToken);
-          
-          if (error.config) {
-            error.config.headers.Authorization = `Bearer ${token}`;
-            return api.request(error.config);
-          }
-        } catch (refreshError) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('refreshToken');
-          if (!isOnLoginPage) {
-            window.location.href = '/login';
-          }
+      // refreshToken is now in httpOnly cookie, so we just call the refresh endpoint
+      try {
+        const response = await api.post(`${API_URL}/auth/refresh`);
+        const responseData = response.data.data || response.data;
+        const { token } = responseData;
+        localStorage.setItem('token', token);
+        // refreshToken cookie is automatically updated by server
+        
+        if (error.config) {
+          error.config.headers.Authorization = `Bearer ${token}`;
+          return api.request(error.config);
         }
-      } else {
+      } catch (refreshError) {
         localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
+        // refreshToken cookie will be cleared by server on invalid token
         if (!isOnLoginPage) {
           window.location.href = '/login';
         }
@@ -81,7 +72,7 @@ api.interceptors.response.use(
       if (window.location.pathname.startsWith('/admin')) {
         if (errorData?.code === 'INVALID_TOKEN' || errorData?.code === 'AUTH_REQUIRED') {
           localStorage.removeItem('token');
-          localStorage.removeItem('refreshToken');
+          // refreshToken cookie is handled by server
           window.location.href = '/login';
         } else {
           window.location.href = '/dashboard';

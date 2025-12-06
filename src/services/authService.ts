@@ -20,9 +20,7 @@ export const authService = {
     const data = extractData(response.data);
     if (data.token) {
       localStorage.setItem('token', data.token);
-      if (data.refreshToken) {
-        localStorage.setItem('refreshToken', data.refreshToken);
-      }
+      // refreshToken is now handled automatically via httpOnly cookie
     }
     return data;
   },
@@ -32,16 +30,20 @@ export const authService = {
     const data = extractData(response.data);
     if (data.token) {
       localStorage.setItem('token', data.token);
-      if (data.refreshToken) {
-        localStorage.setItem('refreshToken', data.refreshToken);
-      }
+      // refreshToken is now handled automatically via httpOnly cookie
     }
     return data;
   },
 
-  logout: (): void => {
+  logout: async (): Promise<void> => {
+    try {
+      // Call logout endpoint to clear refreshToken cookie on server
+      await api.post('/auth/logout');
+    } catch (error) {
+      // Continue with client-side cleanup even if server call fails
+    }
     localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
+    // refreshToken cookie is cleared by server
   },
 
   getMe: async (): Promise<GetMeResponse> => {
