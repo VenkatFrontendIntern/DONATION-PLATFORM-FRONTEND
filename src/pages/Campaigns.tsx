@@ -5,6 +5,7 @@ import { Search, Filter, AlertCircle, RefreshCw, ChevronDown } from 'lucide-reac
 import toast from 'react-hot-toast';
 import { Button } from '../components/ui/Button';
 import { Pagination } from '../components/ui/Pagination';
+import { ShimmerGrid } from '../components/ui/Shimmer';
 
 interface CampaignWithPopulated {
   _id: string;
@@ -35,9 +36,8 @@ const Campaigns: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const itemsPerPage = 12; // Number of campaigns per page
+  const itemsPerPage = 12;
 
-  // Debounce search term
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
 
   useEffect(() => {
@@ -49,17 +49,14 @@ const Campaigns: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Reset to first page when category changes
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedCategory]);
 
-  // Load campaigns when filters or page change
   useEffect(() => {
     loadCampaigns();
   }, [currentPage, selectedCategory, debouncedSearchTerm]);
 
-  // Load categories on mount
   useEffect(() => {
     loadCategories();
   }, []);
@@ -97,11 +94,9 @@ const Campaigns: React.FC = () => {
       setCampaigns(response.campaigns || []);
       setTotalItems(response.total || 0);
 
-      // Calculate total pages
       const calculatedPages = response.pages || Math.ceil((response.total || 0) / itemsPerPage);
       setTotalPages(calculatedPages);
     } catch (error: any) {
-      // Extract error message from standardized response format
       const errorData = error.response?.data;
       const errorMessage = errorData?.message || error.message || 'Failed to load campaigns. Please check your connection.';
       setError(errorMessage);
@@ -113,7 +108,6 @@ const Campaigns: React.FC = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    // Scroll to top when page changes
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -182,12 +176,7 @@ const Campaigns: React.FC = () => {
 
         {/* Results */}
         {loading ? (
-          <div className="flex justify-center items-center h-64 sm:h-80">
-            <div className="flex flex-col items-center gap-4">
-              <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-3 border-primary-200 border-t-primary-600"></div>
-              <p className="text-sm text-gray-500">Loading campaigns...</p>
-            </div>
-          </div>
+          <ShimmerGrid items={12} columns={3} />
         ) : error ? (
           <div className="text-center py-12 sm:py-16 md:py-20 bg-white/80 backdrop-blur-xl rounded-2xl border border-gray-200 shadow-sm">
             <div className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-red-400 mb-4">

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Download, Calendar, Heart } from 'lucide-react';
 import { CURRENCY_SYMBOL } from '../../constants';
 import { Button } from '../ui/Button';
+import { ShimmerList } from '../ui/Shimmer';
 
 interface Donation {
   _id: string;
@@ -30,10 +31,8 @@ export const MyDonationsSection: React.FC<MyDonationsSectionProps> = ({
         <h2 className="text-xl font-bold text-gray-900">My Donations</h2>
       </div>
       {loading ? (
-        <div className="p-6 space-y-4">
-          {[1, 2].map((i) => (
-            <div key={i} className="h-24 bg-gray-200 rounded-xl animate-pulse" />
-          ))}
+        <div className="p-6">
+          <ShimmerList items={3} />
         </div>
       ) : donations.length === 0 ? (
         <div className="text-center py-10">

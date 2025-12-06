@@ -1,36 +1,3 @@
-/**
- * Standard API Response Structure
- * 
- * Success Response:
- * {
- *   status: 'success',
- *   message: string,
- *   data: any
- * }
- * 
- * Error Response:
- * {
- *   status: 'error',
- *   message: string,
- *   data: null
- * }
- * 
- * Paginated Response:
- * {
- *   status: 'success',
- *   message: string,
- *   data: {
- *     items: any[],
- *     pagination: {
- *       page: number,
- *       limit: number,
- *       total: number,
- *       pages: number
- *     }
- *   }
- * }
- */
-
 export interface ApiResponse<T = any> {
   status: 'success' | 'error';
   message: string;
@@ -51,9 +18,6 @@ export interface PaginatedResponse<T = any> {
   };
 }
 
-/**
- * Extract data from standardized API response
- */
 export const extractData = <T>(response: ApiResponse<T>): T => {
   if (response.status === 'error') {
     throw new Error(response.message);
@@ -61,9 +25,6 @@ export const extractData = <T>(response: ApiResponse<T>): T => {
   return response.data as T;
 };
 
-/**
- * Extract paginated data from standardized API response
- */
 export const extractPaginatedData = <T>(response: PaginatedResponse<T>) => {
   if (response.status === 'error') {
     throw new Error(response.message);
@@ -74,31 +35,22 @@ export const extractPaginatedData = <T>(response: PaginatedResponse<T>) => {
   };
 };
 
-/**
- * Extract user-friendly error message from axios error
- * Handles various error types: network errors, validation errors, server errors
- */
 export const getErrorMessage = (error: any): string => {
-  // Check if it's an axios error with response
   if (error.response) {
     const errorData = error.response.data;
     
-    // Handle standardized API response format
     if (errorData?.status === 'error' && errorData?.message) {
       return errorData.message;
     }
     
-    // Handle direct message in response
     if (errorData?.message) {
       return errorData.message;
     }
     
-    // Handle validation errors (array of messages)
     if (Array.isArray(errorData?.errors)) {
       return errorData.errors.map((e: any) => e.message || e).join(', ');
     }
     
-    // Handle HTTP status code specific messages
     const status = error.response.status;
     switch (status) {
       case 400:
@@ -124,17 +76,14 @@ export const getErrorMessage = (error: any): string => {
     }
   }
   
-  // Network error (no response received)
   if (error.request) {
     return 'Network error. Please check your internet connection and try again.';
   }
   
-  // Error in request setup
   if (error.message) {
     return error.message;
   }
   
-  // Default fallback
   return 'An unexpected error occurred. Please try again.';
 };
 

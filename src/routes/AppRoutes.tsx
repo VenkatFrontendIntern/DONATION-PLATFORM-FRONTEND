@@ -6,7 +6,6 @@ import { PageTransition } from '../components/layout/PageTransition';
 import { PrivateRoute, AdminRoute } from '../components/routes/ProtectedRoute';
 import LoadingFallback from '../components/LoadingFallback';
 
-// Lazy load all page components for code splitting
 const Home = lazy(() => import('../pages/Home'));
 const Campaigns = lazy(() => import('../pages/Campaigns'));
 const CampaignDetail = lazy(() => import('../pages/CampaignDetail'));

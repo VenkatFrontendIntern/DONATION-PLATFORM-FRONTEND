@@ -13,7 +13,7 @@ import { DonationModal } from '../components/campaign/DonationModal';
 import { RejectionAlert } from '../components/campaign/RejectionAlert';
 import { useDonation } from '../hooks/useDonation';
 import { getImageUrl } from '../utils/imageUtils';
-import { Loader } from 'lucide-react';
+import { ShimmerCampaignDetail } from '../components/ui/Shimmer';
 import { CURRENCY_SYMBOL } from '../constants';
 import toast from 'react-hot-toast';
 import { Campaign, Donation } from '../types';
@@ -111,11 +111,7 @@ const CampaignDetail: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader className="animate-spin h-8 w-8 text-primary-600" />
-      </div>
-    );
+    return <ShimmerCampaignDetail />;
   }
 
   if (!campaign) {

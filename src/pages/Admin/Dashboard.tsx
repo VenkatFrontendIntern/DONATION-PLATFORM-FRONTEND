@@ -11,6 +11,7 @@ import { MyCampaignsSection } from '../../components/admin/MyCampaignsSection';
 import { MyDonationsSection } from '../../components/admin/MyDonationsSection';
 import { ConfirmModal } from '../../components/ui/ConfirmModal';
 import toast from 'react-hot-toast';
+import { ShimmerStats, ShimmerText, Shimmer } from '../../components/ui/Shimmer';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -79,10 +80,23 @@ const AdminDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+      <div className="min-h-screen bg-gray-50 py-8 pb-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <Shimmer className="h-8 w-48 rounded mb-2" />
+              <Shimmer className="h-4 w-32 rounded" />
+            </div>
+          </div>
+          <ShimmerStats count={5} className="mb-8" />
+          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <Shimmer className="h-6 w-40 rounded mb-4" />
+            <ShimmerText lines={3} className="mb-4" />
+          </div>
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <Shimmer className="h-6 w-32 rounded mb-4" />
+            <ShimmerList items={5} />
+          </div>
         </div>
       </div>
     );

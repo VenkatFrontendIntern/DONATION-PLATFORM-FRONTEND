@@ -9,11 +9,6 @@
     min-height: 100vh;
   }
 
-  /* Removed infinite gradient animation to improve performance */
-  /* Animating background-position causes expensive repaints */
-  /* Static gradient provides better performance on all devices */
-  
-  /* Optional: Very subtle animation only on desktop, disabled on mobile and for reduced motion */
   @media (min-width: 769px) and (prefers-reduced-motion: no-preference) {
     body::before {
       content: '';
@@ -39,7 +34,6 @@
     }
   }
 
-  /* Custom Scrollbar Styling */
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -67,7 +61,6 @@
   }
 }
 
-/* Hide scrollbar for clean mobile horizontal scroll */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -76,7 +69,6 @@
   scrollbar-width: none;
 }
 
-/* Hide number input spinners (up/down arrows) */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -85,5 +77,99 @@ input[type="number"]::-webkit-outer-spin-button {
 
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+/* Shimmer Animation - Enhanced Apple-inspired smooth shimmer effect */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) skewX(-15deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(200%) skewX(-15deg);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer-delayed {
+  0% {
+    transform: translateX(-100%) skewX(-10deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateX(200%) skewX(-10deg);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer-pulse {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2.5s infinite;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+.animate-shimmer-delayed {
+  animation: shimmer-delayed 2.5s infinite;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+.animate-shimmer-pulse {
+  animation: shimmer-pulse 3s ease-in-out infinite;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+@keyframes shimmer-card-fade {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-shimmer-card-fade {
+  animation: shimmer-card-fade 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-shimmer-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.animate-shimmer-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .animate-shimmer,
+  .animate-shimmer-delayed,
+  .animate-shimmer-pulse,
+  .animate-shimmer-card-fade {
+    animation: none;
+  }
+  
+  .animate-shimmer-card:hover {
+    transform: none;
+  }
 }
 

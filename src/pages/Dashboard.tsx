@@ -11,6 +11,7 @@ import { DonationsList } from '../components/dashboard/DonationsList';
 import { CampaignsList } from '../components/dashboard/CampaignsList';
 import { getErrorMessage } from '../utils/apiResponse';
 import toast from 'react-hot-toast';
+import { ShimmerList } from '../components/ui/Shimmer';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -30,7 +31,6 @@ export const Dashboard: React.FC = () => {
     campaignTitle: '',
   });
 
-  // Redirect admins to admin dashboard
   useEffect(() => {
     if (user?.role === 'admin') {
       navigate('/admin', { replace: true });
@@ -38,7 +38,6 @@ export const Dashboard: React.FC = () => {
   }, [user, navigate]);
 
   useEffect(() => {
-    // Only load data if user is not admin (to prevent unnecessary API calls)
     if (user?.role !== 'admin') {
       loadData();
     }
@@ -83,7 +82,6 @@ export const Dashboard: React.FC = () => {
     try {
       await campaignService.delete(campaignId);
       toast.success('Campaign deleted successfully');
-      // Reload campaigns after deletion
       const campaignsRes = await campaignService.getMyCampaigns();
       setCampaigns(campaignsRes.campaigns || []);
     } catch (error: any) {
@@ -126,11 +124,7 @@ export const Dashboard: React.FC = () => {
         <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
         {loading ? (
-          <div className="space-y-4">
-            {[1, 2].map((i) => (
-              <div key={i} className="h-24 bg-gray-200 rounded-xl animate-pulse" />
-            ))}
-          </div>
+          <ShimmerList items={3} />
         ) : activeTab === 'donations' ? (
           <DonationsList
             donations={donations}

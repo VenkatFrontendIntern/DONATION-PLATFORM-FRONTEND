@@ -5,6 +5,7 @@ import { useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { CampaignCard } from '../campaign/CampaignCard';
 import { Button } from '../ui/Button';
+import { ShimmerGrid } from '../ui/Shimmer';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -69,20 +70,7 @@ export const FeaturedCampaignsSection: React.FC<FeaturedCampaignsSectionProps> =
         </motion.div>
 
         {loading ? (
-          <motion.div 
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            {[1,2,3].map(i => (
-              <motion.div 
-                key={i} 
-                variants={itemVariants}
-                className="h-96 bg-gradient-to-br from-gray-200 to-gray-300 rounded-2xl animate-pulse"
-              />
-            ))}
-          </motion.div>
+          <ShimmerGrid items={3} columns={3} />
         ) : (
           <motion.div 
             className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
