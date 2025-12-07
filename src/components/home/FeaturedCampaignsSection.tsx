@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { CampaignCard } from '../campaign/CampaignCard';
 import { Button } from '../ui/Button';

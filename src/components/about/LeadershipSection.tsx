@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
 import { Briefcase } from 'lucide-react';
 
 export const LeadershipSection: React.FC = () => {

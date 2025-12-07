@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
 import { Users, TrendingUp, Heart } from 'lucide-react';
 import { AnimatedCounter } from './AnimatedCounter';
 import { statsService } from '../../services/statsService';
