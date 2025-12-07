@@ -5,7 +5,7 @@ export interface ApiResponse<T = any> {
 }
 
 export interface PaginatedResponse<T = any> {
-  status: 'success';
+  status: 'success' | 'error';
   message: string;
   data: {
     items: T[];
@@ -15,7 +15,7 @@ export interface PaginatedResponse<T = any> {
       total: number;
       pages: number;
     };
-  };
+  } | null;
 }
 
 export const extractData = <T>(response: ApiResponse<T>): T => {
@@ -28,6 +28,9 @@ export const extractData = <T>(response: ApiResponse<T>): T => {
 export const extractPaginatedData = <T>(response: PaginatedResponse<T>) => {
   if (response.status === 'error') {
     throw new Error(response.message);
+  }
+  if (!response.data) {
+    throw new Error('No data available');
   }
   return {
     items: response.data.items,
