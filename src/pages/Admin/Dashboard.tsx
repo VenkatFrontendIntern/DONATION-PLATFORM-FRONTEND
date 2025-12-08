@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { donationService } from '../../services/donationService';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAdminDashboard } from '../../hooks/useAdminDashboard';
@@ -14,7 +14,7 @@ import { NewsletterManagement } from '../../components/admin/NewsletterManagemen
 import { ConfirmModal } from '../../components/ui/ConfirmModal';
 import toast from 'react-hot-toast';
 import { ShimmerAdminDashboard } from '../../components/ui/Shimmer';
-import { Calendar, Filter } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { CategoryModal } from '../../components/admin/CategoryModal';
 
 const AdminDashboard: React.FC = () => {
@@ -65,8 +65,6 @@ const AdminDashboard: React.FC = () => {
     loadMyData,
   });
 
-  const [dateFilter, setDateFilter] = useState('all'); // UI only - 'all', 'today', 'week', 'month'
-
   const handleDownloadCertificate = async (donationId: string) => {
     try {
       const blob = await donationService.getCertificate(donationId);
@@ -102,29 +100,12 @@ const AdminDashboard: React.FC = () => {
         {/* Premium Header Section */}
         <div className="mb-8">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-1">Welcome back, {user?.name}</h1>
-                <p className="text-sm text-gray-500 flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  {currentDate}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <select
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
-                    className="appearance-none bg-white border border-gray-200 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent cursor-pointer"
-                  >
-                    <option value="all">All Time</option>
-                    <option value="today">Today</option>
-                    <option value="week">This Week</option>
-                    <option value="month">This Month</option>
-                  </select>
-                  <Filter className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-1">Welcome back, {user?.name}</h1>
+              <p className="text-sm text-gray-500 flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                {currentDate}
+              </p>
             </div>
           </div>
         </div>

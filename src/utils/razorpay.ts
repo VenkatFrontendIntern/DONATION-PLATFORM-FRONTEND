@@ -1,4 +1,6 @@
 // Razorpay integration utility
+import toast from 'react-hot-toast';
+
 declare global {
   interface Window {
     Razorpay: any;
@@ -46,11 +48,29 @@ export const loadRazorpay = (): Promise<void> => {
 };
 
 export const openRazorpay = async (options: any): Promise<any> => {
+  // Check for Razorpay key ID in environment variables
+  const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID;
+  
+  if (!razorpayKeyId || razorpayKeyId.trim() === '') {
+    const errorMessage = 'Razorpay configuration is missing. Please contact support.';
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+
+  // Use the key from options if provided, otherwise use the env var
+  const keyToUse = options.key || razorpayKeyId;
+  
+  if (!keyToUse || keyToUse.trim() === '') {
+    const errorMessage = 'Razorpay key is missing. Please contact support.';
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+
   await loadRazorpay();
 
   return new Promise((resolve, reject) => {
     const razorpay = new window.Razorpay({
-      key: options.key,
+      key: keyToUse,
       amount: options.amount,
       currency: options.currency || 'INR',
       order_id: options.order_id,

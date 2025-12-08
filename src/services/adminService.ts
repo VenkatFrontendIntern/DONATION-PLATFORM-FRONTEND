@@ -79,9 +79,41 @@ export const adminService = {
     return extractData(response.data);
   },
 
-  getDonationTrends: async (): Promise<{ trends: Array<{ month: string; amount: number; donations: number }> }> => {
-    const response = await api.get<ApiResponse<{ trends: Array<{ month: string; amount: number; donations: number }> }>>('/admin/donation-trends');
-    return extractData(response.data);
+  getPaymentMethodAnalytics: async (): Promise<{
+    paymentMethods: Array<{
+      method: string;
+      totalAmount: number;
+      totalCount: number;
+      successCount: number;
+      failedCount: number;
+      pendingCount: number;
+      successAmount: number;
+      successRate: number;
+    }>;
+    statusBreakdown: Record<string, { count: number; amount: number }>;
+  }> => {
+    try {
+      const response = await api.get<ApiResponse<{
+        paymentMethods: Array<{
+          method: string;
+          totalAmount: number;
+          totalCount: number;
+          successCount: number;
+          failedCount: number;
+          pendingCount: number;
+          successAmount: number;
+          successRate: number;
+        }>;
+        statusBreakdown: Record<string, { count: number; amount: number }>;
+      }>>('/admin/payment-analytics');
+      return extractData(response.data);
+    } catch (error: any) {
+      // Return empty data if API fails
+      return {
+        paymentMethods: [],
+        statusBreakdown: {},
+      };
+    }
   },
 
   getAllUsers: async (params: { page?: number; limit?: number; search?: string } = {}): Promise<UsersResponse> => {

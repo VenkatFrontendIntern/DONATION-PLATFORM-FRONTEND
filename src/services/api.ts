@@ -1,13 +1,17 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { getErrorMessage } from '../utils/apiResponse';
 
-let API_URL: string = import.meta.env.VITE_API_URL as string;
+// Strictly prioritize VITE_API_URL environment variable
+// Only fallback to localhost if the env var is undefined
+let API_URL: string;
 
-if (API_URL && API_URL.trim() !== '') {
+if (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL.trim() !== '') {
+  API_URL = import.meta.env.VITE_API_URL.trim();
   if (!API_URL.endsWith('/api')) {
     API_URL = API_URL.endsWith('/') ? `${API_URL}api` : `${API_URL}/api`;
   }
 } else {
+  // Only use localhost fallback if VITE_API_URL is not set
   API_URL = import.meta.env.DEV 
     ? '/api'
     : 'http://localhost:5000/api';
@@ -27,6 +31,12 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Mark admin donation-trends requests to suppress errors
+    if (config.url?.includes('/admin/donation-trends')) {
+      (config as any).__suppressErrors = true;
+    }
+    
     return config;
   },
   (error) => {
@@ -86,6 +96,36 @@ api.interceptors.response.use(
       
       error.isRateLimit = true;
       error.userMessage = errorMessage;
+    }
+
+    // Silently handle errors for admin donation-trends endpoint
+    const isDonationTrendsRequest = error.config?.url?.includes('/admin/donation-trends') || 
+                                     error.config?.__suppressErrors;
+    
+    if (isDonationTrendsRequest) {
+      // Mark as silent to prevent all logging
+      (error as any).isSilent = true;
+      (error as any).userMessage = '';
+      (error as any).__suppressed = true;
+      // Still reject but mark as handled
+      return Promise.reject(error);
+    }
+
+    // Silently handle 404 errors for other admin endpoints
+    if (error.response?.status === 404 && error.config?.url?.includes('/admin/')) {
+      (error as any).isSilent = true;
+      (error as any).userMessage = '';
+      return Promise.reject(error);
+    }
+
+    // Suppress network errors for admin endpoints
+    if (
+      (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) &&
+      error.config?.url?.includes('/admin/')
+    ) {
+      (error as any).isSilent = true;
+      (error as any).userMessage = '';
+      return Promise.reject(error);
     }
 
     error.userMessage = getErrorMessage(error);

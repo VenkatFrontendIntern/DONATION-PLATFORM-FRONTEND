@@ -17,7 +17,7 @@ export const NewsletterManagement: React.FC<NewsletterManagementProps> = ({ camp
   const [sending, setSending] = useState(false);
   const [campaigns, setCampaigns] = useState<any[]>(propCampaigns);
   const [loadingCampaigns, setLoadingCampaigns] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>('campaignUpdate');
 
   // Load approved campaigns for dropdown
   useEffect(() => {
@@ -40,6 +40,12 @@ export const NewsletterManagement: React.FC<NewsletterManagementProps> = ({ camp
 
     loadCampaigns();
   }, [propCampaigns]);
+
+  // Set default template to Campaign Update on component mount
+  useEffect(() => {
+    insertTemplate('campaignUpdate');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSendNewsletter = async () => {
     if (!subject.trim()) {
@@ -85,6 +91,7 @@ export const NewsletterManagement: React.FC<NewsletterManagementProps> = ({ camp
     setContent(templates[template] || '');
     setSelectedTemplate(template);
   };
+
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
