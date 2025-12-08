@@ -21,13 +21,16 @@ export default defineConfig(({ mode }) => {
       }
     },
     plugins: [
-      react(),
+      react({
+        jsxRuntime: 'automatic',
+      }),
       imagetools(),
     ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
-      }
+      },
+      dedupe: ['react', 'react-dom'],
     },
     build: {
       minify: 'esbuild',
@@ -59,11 +62,8 @@ export default defineConfig(({ mode }) => {
           },
           manualChunks: (id) => {
             if (id.includes('node_modules')) {
-              if (id.includes('react-dom')) {
-                return 'react-dom';
-              }
-              if (id.includes('react') && !id.includes('react-dom')) {
-                return 'react';
+              if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
+                return 'react-vendor';
               }
               if (id.includes('framer-motion')) {
                 return 'framer-motion';
@@ -81,9 +81,19 @@ export default defineConfig(({ mode }) => {
       },
       cssCodeSplit: true,
       assetsInlineLimit: 4096,
+      commonjsOptions: {
+        include: [/node_modules/],
+        transformMixedEsModules: true,
+      },
     },
     optimizeDeps: {
       include: ['react', 'react-dom', 'react-router-dom', 'framer-motion', 'lucide-react'],
+      esbuildOptions: {
+        target: 'es2015',
+      },
+    },
+    define: {
+      'process.env.NODE_ENV': JSON.stringify(mode),
     },
   };
 });
