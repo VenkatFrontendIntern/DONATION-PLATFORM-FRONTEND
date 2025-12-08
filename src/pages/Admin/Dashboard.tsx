@@ -14,10 +14,8 @@ import { NewsletterManagement } from '../../components/admin/NewsletterManagemen
 import { ConfirmModal } from '../../components/ui/ConfirmModal';
 import toast from 'react-hot-toast';
 import { ShimmerAdminDashboard } from '../../components/ui/Shimmer';
-import { Calendar, Filter, Plus, Tag, Settings } from 'lucide-react';
-import { Button } from '../../components/ui/Button';
+import { Calendar, Filter } from 'lucide-react';
 import { CategoryModal } from '../../components/admin/CategoryModal';
-import { getImageUrl } from '../../utils/imageUtils';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -98,9 +96,6 @@ const AdminDashboard: React.FC = () => {
     return <ShimmerAdminDashboard animationType="glow" statsCount={stats?.campaigns.rejected !== undefined ? 5 : 4} />;
   }
 
-  // Get first 3 pending campaigns for compact view
-  const pendingCampaignsPreview = campaigns.slice(0, 3);
-
   return (
     <div className="min-h-screen bg-gray-50/50 py-8 pb-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -139,136 +134,6 @@ const AdminDashboard: React.FC = () => {
 
         {/* Middle Row: Analytics Charts */}
         {stats && <AnalyticsSection stats={stats} />}
-
-        {/* Bottom Row: Management Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
-          {/* Left Column (60%): Pending Actions */}
-          <div className="lg:col-span-3">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900">Pending Actions</h2>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {stats?.campaigns.pending || 0} campaigns awaiting review
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setActiveTab('pending');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                  >
-                    View All
-                  </Button>
-                </div>
-              </div>
-              <div className="p-6">
-                {campaignsLoading ? (
-                  <div className="space-y-4">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="animate-pulse">
-                        <div className="h-16 bg-gray-100 rounded-lg" />
-                      </div>
-                    ))}
-                  </div>
-                ) : pendingCampaignsPreview.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <p>No pending campaigns</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {pendingCampaignsPreview.map((campaign) => (
-                      <div
-                        key={campaign._id}
-                        className="flex items-center gap-4 p-4 rounded-lg border border-gray-100 hover:bg-gray-50 hover:border-emerald-100 transition-all duration-200"
-                      >
-                        <img
-                          src={getImageUrl(campaign.coverImage)}
-                          alt={campaign.title}
-                          className="h-12 w-12 rounded-lg object-cover border border-gray-200"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 truncate">{campaign.title}</p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {campaign.organizer || campaign.organizerId?.name || 'Unknown'}
-                          </p>
-                        </div>
-                        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
-                          Pending
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column (40%): Quick Actions */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center gap-2 mb-1">
-                  <Settings className="h-5 w-5 text-gray-600" />
-                  <h2 className="text-xl font-bold text-gray-900">Quick Actions</h2>
-                </div>
-                <p className="text-sm text-gray-500">Manage categories and settings</p>
-              </div>
-              <div className="p-6">
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-sm font-semibold text-gray-700">Categories</h3>
-                      <Button
-                        size="sm"
-                        onClick={() => setShowCategoryModal(true)}
-                        className="bg-emerald-600 hover:bg-emerald-700"
-                      >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Add
-                      </Button>
-                    </div>
-                    {categories.length === 0 ? (
-                      <div className="text-center py-4 text-gray-500 text-sm">
-                        <Tag className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-                        <p>No categories</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-2 max-h-48 overflow-y-auto">
-                        {categories.slice(0, 5).map((category) => (
-                          <div
-                            key={category._id}
-                            className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                          >
-                            <div className="flex items-center gap-2">
-                              {category.icon && <span className="text-lg">{category.icon}</span>}
-                              <span className="text-sm font-medium text-gray-700">{category.name}</span>
-                            </div>
-                            <button
-                              onClick={() => handleDeleteCategory(category._id)}
-                              disabled={deleteLoading === category._id}
-                              className="text-red-500 hover:text-red-700 disabled:opacity-50 text-sm"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        ))}
-                        {categories.length > 5 && (
-                          <p className="text-xs text-gray-500 text-center pt-2">
-                            +{categories.length - 5} more categories
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Tab Navigation */}
         <AdminTabs

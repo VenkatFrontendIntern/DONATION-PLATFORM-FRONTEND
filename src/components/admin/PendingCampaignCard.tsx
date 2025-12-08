@@ -99,8 +99,8 @@ export const PendingCampaignCard: React.FC<PendingCampaignCardProps> = ({
         )}
 
         {/* Action Buttons */}
-        {showActions && (
-          <div className="space-y-2">
+        <div className="space-y-2">
+          {showActions && (
             <div className="flex gap-2">
               <Button
                 size="sm"
@@ -124,14 +124,15 @@ export const PendingCampaignCard: React.FC<PendingCampaignCardProps> = ({
                 </Button>
               )}
             </div>
-            <Link to={`/campaign/${campaign._id}`} className="block">
-              <Button variant="outline" size="sm" className="w-full">
-                <Eye className="w-4 h-4 mr-2" />
-                View Campaign
-              </Button>
-            </Link>
-          </div>
-        )}
+          )}
+          {/* View Campaign button - always visible for both pending and rejected campaigns */}
+          <Link to={`/campaign/${campaign._id}`} className="block">
+            <Button variant="outline" size="sm" className="w-full">
+              <Eye className="w-4 h-4 mr-2" />
+              View Campaign
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );

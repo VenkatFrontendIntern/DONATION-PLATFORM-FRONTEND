@@ -62,8 +62,13 @@ export default defineConfig(({ mode }) => {
           },
           manualChunks: (id) => {
             if (id.includes('node_modules')) {
+              // React must be in its own chunk and loaded first
               if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
                 return 'react-vendor';
+              }
+              // Bundle chart.js libraries together
+              if (id.includes('chart.js') || id.includes('react-chartjs-2')) {
+                return 'chart-vendor';
               }
               if (id.includes('framer-motion')) {
                 return 'framer-motion';
@@ -87,7 +92,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     optimizeDeps: {
-      include: ['react', 'react-dom', 'react-router-dom', 'framer-motion', 'lucide-react'],
+      include: ['react', 'react-dom', 'react-router-dom', 'framer-motion', 'lucide-react', 'chart.js', 'react-chartjs-2'],
       esbuildOptions: {
         target: 'es2015',
       },

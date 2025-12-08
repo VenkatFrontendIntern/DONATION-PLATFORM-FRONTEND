@@ -1,20 +1,33 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  BarElement,
+  Title,
+  Tooltip as ChartTooltip,
   Legend,
-  ComposedChart,
-} from 'recharts';
+  Filler,
+} from 'chart.js';
+import { Line, Doughnut } from 'react-chartjs-2';
+import { adminService } from '../../services/adminService';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  BarElement,
+  Title,
+  ChartTooltip,
+  Legend,
+  Filler
+);
 
 interface AnalyticsSectionProps {
   stats?: {
@@ -31,19 +44,11 @@ interface AnalyticsSectionProps {
   };
 }
 
-// Mock data for donation trends (last 6 months)
-const generateDonationTrendsData = () => {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-  // More realistic trend: starting lower, dipping in middle, rising at end
-  const baseAmounts = [55000, 60000, 52000, 58000, 65000, 72000];
-  const donationCounts = [25, 28, 22, 30, 35, 42];
-  
-  return months.map((month, index) => ({
-    month,
-    amount: baseAmounts[index] || 50000,
-    donations: donationCounts[index] || 25,
-  }));
-};
+interface DonationTrend {
+  month: string;
+  amount: number;
+  donations: number;
+}
 
 const DONATION_COLORS = {
   area: '#10b981', // emerald-500
@@ -57,7 +62,30 @@ const CAMPAIGN_COLORS = {
 };
 
 export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ stats }) => {
-  const donationTrendsData = generateDonationTrendsData();
+  const [donationTrendsData, setDonationTrendsData] = useState<DonationTrend[]>([]);
+  const [loadingTrends, setLoadingTrends] = useState(true);
+
+  useEffect(() => {
+    const loadDonationTrends = async () => {
+      try {
+        const response = await adminService.getDonationTrends();
+        setDonationTrendsData(response.trends || []);
+      } catch (error: any) {
+        console.error('Failed to load donation trends:', error);
+        // If 404, the endpoint doesn't exist yet - use empty data
+        // The backend server needs to be restarted to pick up the new route
+        if (error?.response?.status === 404) {
+          console.warn('Donation trends endpoint not found. Please restart the backend server.');
+        }
+        // Fallback to empty data if API fails
+        setDonationTrendsData([]);
+      } finally {
+        setLoadingTrends(false);
+      }
+    };
+
+    loadDonationTrends();
+  }, []);
 
   // Prepare campaign status data with proper percentages
   const campaignStatusData = stats
@@ -78,56 +106,255 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ stats }) => 
       })()
     : [];
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-4 rounded-lg shadow-xl border border-gray-200 backdrop-blur-sm">
-          <p className="text-sm font-bold text-gray-900 mb-3">{label}</p>
-          <div className="space-y-2">
-            {payload.map((entry: any, index: number) => (
-              <div key={index} className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
-                  <span className="text-sm font-medium text-gray-600">{entry.name}:</span>
-                </div>
-                <span className="text-sm font-bold text-gray-900">
-                  {entry.name === 'Amount' ? `₹${entry.value.toLocaleString('en-IN')}` : entry.value}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-    return null;
+  // Chart.js data for donation trends
+  const donationChartData = donationTrendsData.length > 0 ? {
+    labels: donationTrendsData.map(d => d.month),
+    datasets: [
+      {
+        label: 'Amount (₹)',
+        data: donationTrendsData.map(d => d.amount),
+        borderColor: DONATION_COLORS.line,
+        backgroundColor: (context: any) => {
+          const ctx = context.chart.ctx;
+          const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+          gradient.addColorStop(0, 'rgba(16, 185, 129, 0.3)');
+          gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+          return gradient;
+        },
+        fill: true,
+        tension: 0.4,
+        yAxisID: 'y',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: DONATION_COLORS.line,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+      },
+      {
+        label: 'Donation Count',
+        data: donationTrendsData.map(d => d.donations),
+        borderColor: '#8b5cf6',
+        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+        borderDash: [5, 5],
+        fill: false,
+        tension: 0.4,
+        yAxisID: 'y1',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#8b5cf6',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+      },
+    ],
+  } : {
+    labels: [],
+    datasets: [],
   };
 
-  const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
-    const RADIAN = Math.PI / 180;
-    // Calculate the center point of the segment (middle of the donut ring)
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    // Convert angle to radians and adjust for proper positioning
-    const angle = -midAngle * RADIAN;
-    const x = cx + radius * Math.cos(angle);
-    const y = cy + radius * Math.sin(angle);
-    const percentage = Math.round(percent * 100);
+  const donationChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: 'index' as const,
+      intersect: false,
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        backgroundColor: 'white',
+        titleColor: '#111827',
+        bodyColor: '#111827',
+        borderColor: '#e5e7eb',
+        borderWidth: 1,
+        padding: 12,
+        displayColors: true,
+        callbacks: {
+          label: function(context: any) {
+            let label = context.dataset.label || '';
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed.y !== null) {
+              if (label.includes('Amount')) {
+                label += `₹${context.parsed.y.toLocaleString('en-IN')}`;
+              } else {
+                label += context.parsed.y;
+              }
+            }
+            return label;
+          }
+        }
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          color: '#6b7280',
+          font: {
+            size: 12,
+          },
+        },
+      },
+      y: {
+        type: 'linear' as const,
+        display: true,
+        position: 'left' as const,
+        title: {
+          display: true,
+          text: 'Amount (₹)',
+          color: '#6b7280',
+          font: {
+            size: 12,
+            weight: '500',
+          },
+        },
+        grid: {
+          color: '#f0f0f0',
+        },
+        ticks: {
+          color: '#6b7280',
+          font: {
+            size: 11,
+          },
+          callback: function(value: any) {
+            if (value >= 100000) {
+              return `₹${(value / 100000).toFixed(1)}L`;
+            } else if (value >= 1000) {
+              return `₹${(value / 1000).toFixed(0)}k`;
+            }
+            return `₹${value}`;
+          },
+        },
+        beginAtZero: true,
+      },
+      y1: {
+        type: 'linear' as const,
+        display: true,
+        position: 'right' as const,
+        title: {
+          display: true,
+          text: 'Count',
+          color: '#8b5cf6',
+          font: {
+            size: 12,
+            weight: '500',
+          },
+        },
+        grid: {
+          drawOnChartArea: false,
+        },
+        ticks: {
+          color: '#8b5cf6',
+          font: {
+            size: 11,
+          },
+        },
+        beginAtZero: true,
+      },
+    },
+  };
 
-    // Only show label if percentage is significant (>= 5%)
-    if (percentage < 5) return null;
+  // Chart.js data for campaign status
+  const campaignChartData = {
+    labels: campaignStatusData.map(d => d.name),
+    datasets: [
+      {
+        data: campaignStatusData.map(d => d.value),
+        backgroundColor: campaignStatusData.map(d => d.color),
+        borderWidth: 0,
+      },
+    ],
+  };
 
-    return (
-      <text
-        x={x}
-        y={y}
-        fill="white"
-        textAnchor="middle"
-        dominantBaseline="middle"
-        className="text-sm font-semibold"
-        style={{ pointerEvents: 'none' }}
-      >
-        {`${percentage}%`}
-      </text>
-    );
+  // Custom plugin to display numbers on doughnut chart
+  const doughnutLabelPlugin = {
+    id: 'doughnutLabel',
+    beforeDraw: (chart: any) => {
+      const ctx = chart.ctx;
+      const data = chart.data.datasets[0].data;
+      const total = data.reduce((a: number, b: number) => a + b, 0);
+      
+      if (total === 0) return;
+      
+      const centerX = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2;
+      const centerY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
+      
+      // Draw total in center
+      ctx.save();
+      ctx.font = 'bold 24px sans-serif';
+      ctx.fillStyle = '#111827';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(total.toString(), centerX, centerY - 10);
+      
+      ctx.font = '14px sans-serif';
+      ctx.fillStyle = '#6b7280';
+      ctx.fillText('Total', centerX, centerY + 15);
+      ctx.restore();
+    },
+    afterDraw: (chart: any) => {
+      const ctx = chart.ctx;
+      const meta = chart.getDatasetMeta(0);
+      const data = chart.data.datasets[0].data;
+      const total = data.reduce((a: number, b: number) => a + b, 0);
+      
+      if (total === 0) return;
+      
+      meta.data.forEach((arc: any, index: number) => {
+        const value = data[index];
+        if (value === 0) return;
+        
+        const angle = (arc.startAngle + arc.endAngle) / 2;
+        const radius = (arc.innerRadius + arc.outerRadius) / 2;
+        const x = arc.x + Math.cos(angle) * radius;
+        const y = arc.y + Math.sin(angle) * radius;
+        
+        ctx.save();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 2;
+        ctx.fillText(value.toString(), x, y);
+        ctx.restore();
+      });
+    }
+  };
+
+  const campaignChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '60%',
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        backgroundColor: 'white',
+        titleColor: '#111827',
+        bodyColor: '#111827',
+        borderColor: '#e5e7eb',
+        borderWidth: 1,
+        padding: 12,
+        callbacks: {
+          label: function(context: any) {
+            const label = context.label || '';
+            const value = context.parsed || 0;
+            const total = campaignStatusData.reduce((sum, item) => sum + item.value, 0);
+            const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+            return `${label}: ${value} ${value === 1 ? 'campaign' : 'campaigns'} (${percentage}%)`;
+          }
+        }
+      },
+    },
   };
 
   return (
@@ -138,71 +365,31 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ stats }) => 
           <h3 className="text-lg font-bold text-gray-900 mb-1">Donation Volume</h3>
           <p className="text-sm text-gray-500">Last 6 months overview</p>
         </div>
-        <ResponsiveContainer width="100%" height={300}>
-          <ComposedChart data={donationTrendsData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={DONATION_COLORS.area} stopOpacity={0.3} />
-                <stop offset="95%" stopColor={DONATION_COLORS.area} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis
-              dataKey="month"
-              stroke="#6b7280"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-            />
-            <YAxis
-              yAxisId="amount"
-              stroke="#6b7280"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`}
-            />
-            <YAxis
-              yAxisId="count"
-              orientation="right"
-              stroke="#8b5cf6"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Area
-              yAxisId="amount"
-              type="monotone"
-              dataKey="amount"
-              stroke={DONATION_COLORS.line}
-              strokeWidth={2}
-              fillOpacity={1}
-              fill="url(#colorAmount)"
-              name="Amount"
-            />
-            <Line
-              yAxisId="count"
-              type="monotone"
-              dataKey="donations"
-              stroke="#8b5cf6"
-              strokeWidth={2}
-              strokeDasharray="5 5"
-              name="Donations"
-              dot={{ fill: '#8b5cf6', r: 4 }}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
-        <div className="mt-4 flex items-center gap-4 text-xs text-gray-500">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-            <span>Amount (₹)</span>
+        {loadingTrends ? (
+          <div className="h-[300px] flex items-center justify-center">
+            <div className="animate-pulse text-gray-400">Loading donation trends...</div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-            <span>Donation Count</span>
+        ) : donationTrendsData.length > 0 ? (
+          <>
+            <div style={{ height: '300px' }}>
+              <Line data={donationChartData} options={donationChartOptions} />
+            </div>
+            <div className="mt-4 flex items-center gap-4 text-xs text-gray-500">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+                <span>Amount (₹)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                <span>Donation Count</span>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="h-[300px] flex items-center justify-center text-gray-400">
+            <p>No donation data available for the last 6 months</p>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Campaign Status Chart */}
@@ -213,44 +400,13 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ stats }) => 
         </div>
         {campaignStatusData.length > 0 ? (
           <>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={campaignStatusData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={CustomLabel}
-                  outerRadius={100}
-                  innerRadius={60}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {campaignStatusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      const data = payload[0].payload;
-                      return (
-                        <div className="bg-white p-4 rounded-lg shadow-xl border border-gray-200 backdrop-blur-sm">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: data.color }} />
-                            <p className="text-sm font-bold text-gray-900">{data.name}</p>
-                          </div>
-                          <p className="text-sm font-semibold" style={{ color: data.color }}>
-                            {data.value} {data.value === 1 ? 'campaign' : 'campaigns'} ({data.percentage}%)
-                          </p>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            <div style={{ height: '300px' }}>
+              <Doughnut 
+                data={campaignChartData} 
+                options={campaignChartOptions}
+                plugins={[doughnutLabelPlugin]}
+              />
+            </div>
             <div className="mt-6 space-y-2">
               {campaignStatusData.map((item, index) => (
                 <div key={index} className="flex items-center justify-between">

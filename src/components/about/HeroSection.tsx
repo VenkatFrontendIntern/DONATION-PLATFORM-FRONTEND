@@ -69,7 +69,7 @@ export const AboutHeroSection: React.FC = () => {
               className="w-full max-w-md h-auto object-contain drop-shadow-lg"
               loading="lazy"
               decoding="async"
-              fetchPriority="low"
+              fetchpriority="low"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
           </motion.div>

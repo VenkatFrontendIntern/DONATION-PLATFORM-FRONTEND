@@ -114,7 +114,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
                 className="w-full h-full object-cover pointer-events-none"
                 loading={index === 0 ? 'eager' : 'lazy'}
                 decoding="async"
-                fetchPriority={index === 0 ? 'high' : 'auto'}
+                fetchpriority={index === 0 ? 'high' : 'auto'}
                 width={600}
                 height={600}
                 sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, 50vw"

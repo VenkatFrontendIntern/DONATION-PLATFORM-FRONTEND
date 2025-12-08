@@ -147,9 +147,14 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Status
                   </th>
-                  {showActions && (
+                  {(showActions || isRejected) && (
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
                       Actions
+                    </th>
+                  )}
+                  {isRejected && (
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Rejection Reason
                     </th>
                   )}
                 </tr>
@@ -253,6 +258,18 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
                             <X className="h-4 w-4 mr-1" />
                             Reject
                           </Button>
+                        </div>
+                      </td>
+                    )}
+                    {isRejected && (
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end gap-2">
+                          <Link to={`/campaign/${campaign._id}`}>
+                            <Button variant="outline" size="sm" className="hover:bg-gray-100">
+                              <Eye className="h-4 w-4 mr-1" />
+                              View Details
+                            </Button>
+                          </Link>
                         </div>
                       </td>
                     )}

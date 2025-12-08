@@ -79,6 +79,11 @@ export const adminService = {
     return extractData(response.data);
   },
 
+  getDonationTrends: async (): Promise<{ trends: Array<{ month: string; amount: number; donations: number }> }> => {
+    const response = await api.get<ApiResponse<{ trends: Array<{ month: string; amount: number; donations: number }> }>>('/admin/donation-trends');
+    return extractData(response.data);
+  },
+
   getAllUsers: async (params: { page?: number; limit?: number; search?: string } = {}): Promise<UsersResponse> => {
     const response = await api.get<PaginatedResponse>('/admin/users', { params });
     const { items, pagination } = extractPaginatedData(response.data);
