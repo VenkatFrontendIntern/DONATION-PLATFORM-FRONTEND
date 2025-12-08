@@ -17,6 +17,8 @@
     <!-- Preconnect to external domains -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
+    <link rel="dns-prefetch" href="https://images.unsplash.com" />
     
     <!-- Preload critical fonts -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" />
@@ -24,6 +26,13 @@
     <!-- Load fonts asynchronously with font-display swap -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" /></noscript>
+    
+    <!-- Inline critical CSS for above-the-fold content -->
+    <style>
+      /* Critical CSS for initial render */
+      body{margin:0;font-family:Inter,sans-serif}
+      #root{min-height:100vh}
+    </style>
     
     <!-- Defer Razorpay script - load only when needed -->
     <script>

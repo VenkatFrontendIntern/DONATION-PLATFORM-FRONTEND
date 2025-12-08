@@ -3,6 +3,7 @@ import { motion, PanInfo } from 'framer-motion';
 
 interface Image {
   src: string;
+  srcset?: string;
   alt: string;
 }
 
@@ -108,6 +109,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
             >
               <img
                 src={image.src}
+                srcSet={image.srcset}
                 alt={image.alt}
                 className="w-full h-full object-cover pointer-events-none"
                 loading={index === 0 ? 'eager' : 'lazy'}
@@ -115,7 +117,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
                 fetchPriority={index === 0 ? 'high' : 'auto'}
                 width={600}
                 height={600}
-                sizes="(max-width: 768px) 100vw, 50vw"
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, 50vw"
                 draggable={false}
               />
             </motion.div>

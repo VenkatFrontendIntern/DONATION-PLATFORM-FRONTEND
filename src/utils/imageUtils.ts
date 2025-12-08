@@ -104,7 +104,22 @@ export const getImageUrl = (
       }
     }
     
-    // Return as-is if not Cloudinary or parsing failed
+    // Optimize Unsplash images
+    if (imagePath.includes('unsplash.com')) {
+      const url = new URL(imagePath);
+      // Add width parameter if specified, otherwise use a reasonable default
+      if (width) {
+        url.searchParams.set('w', width.toString());
+      } else if (!url.searchParams.has('w')) {
+        url.searchParams.set('w', '800');
+      }
+      // Add auto format and quality
+      url.searchParams.set('auto', 'format');
+      url.searchParams.set('q', '85');
+      return url.toString();
+    }
+    
+    // Return as-is if not Cloudinary or Unsplash or parsing failed
     return imagePath;
   }
 

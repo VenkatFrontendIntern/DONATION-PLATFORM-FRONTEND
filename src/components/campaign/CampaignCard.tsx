@@ -28,12 +28,14 @@ export const CampaignCard: React.FC<CampaignCardProps> = memo(({ campaign, index
       {/* Image Container */}
       <div className="relative h-48 sm:h-56 md:h-64 w-full overflow-hidden bg-gray-100">
         <motion.img
-          src={getImageUrl(campaign.coverImage, 600)}
+          src={getImageUrl(campaign.coverImage, 800)}
           alt={campaign.title}
           className="w-full h-full object-cover"
           loading={priority ? "eager" : "lazy"}
           decoding="async"
           fetchPriority={priority ? "high" : "auto"}
+          width={800}
+          height={600}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           whileHover={{ scale: 1.05 }}
           transition={{ duration: 0.6, ease: "easeOut" }}

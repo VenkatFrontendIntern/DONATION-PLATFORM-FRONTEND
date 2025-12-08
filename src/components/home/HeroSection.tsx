@@ -5,14 +5,39 @@ import { statsService } from '../../services/statsService';
 import { ImageCarousel } from './ImageCarousel';
 import { FeaturedCampaignCard } from './FeaturedCampaignCard';
 import { HeroContent } from './HeroContent';
-import homePageImage1 from '../../assets/images/home-page-picture-1.jpg?url';
-import homePageImage2 from '../../assets/images/home-page-picture-2.jpg?url';
-import homePageImage3 from '../../assets/images/home-page-picture-3.jpg?url';
+// Import images with responsive sizes and WebP format
+// Using vite-imagetools to generate optimized images
+import homePageImage1Small from '../../assets/images/home-page-picture-1.jpg?w=400&format=webp';
+import homePageImage1Medium from '../../assets/images/home-page-picture-1.jpg?w=600&format=webp';
+import homePageImage1Large from '../../assets/images/home-page-picture-1.jpg?w=800&format=webp';
+import homePageImage1Src from '../../assets/images/home-page-picture-1.jpg?w=600&format=webp';
+
+import homePageImage2Small from '../../assets/images/home-page-picture-2.jpg?w=400&format=webp';
+import homePageImage2Medium from '../../assets/images/home-page-picture-2.jpg?w=600&format=webp';
+import homePageImage2Large from '../../assets/images/home-page-picture-2.jpg?w=800&format=webp';
+import homePageImage2Src from '../../assets/images/home-page-picture-2.jpg?w=600&format=webp';
+
+import homePageImage3Small from '../../assets/images/home-page-picture-3.jpg?w=400&format=webp';
+import homePageImage3Medium from '../../assets/images/home-page-picture-3.jpg?w=600&format=webp';
+import homePageImage3Large from '../../assets/images/home-page-picture-3.jpg?w=800&format=webp';
+import homePageImage3Src from '../../assets/images/home-page-picture-3.jpg?w=600&format=webp';
 
 const images = [
-  { src: homePageImage1, alt: 'Child in need - Your donation can change a life' },
-  { src: homePageImage2, alt: 'Family together - Making a difference through donations' },
-  { src: homePageImage3, alt: 'Young child portrait - Your support makes a difference' },
+  { 
+    srcset: `${homePageImage1Small} 400w, ${homePageImage1Medium} 600w, ${homePageImage1Large} 800w`,
+    src: homePageImage1Src, 
+    alt: 'Child in need - Your donation can change a life' 
+  },
+  { 
+    srcset: `${homePageImage2Small} 400w, ${homePageImage2Medium} 600w, ${homePageImage2Large} 800w`,
+    src: homePageImage2Src, 
+    alt: 'Family together - Making a difference through donations' 
+  },
+  { 
+    srcset: `${homePageImage3Small} 400w, ${homePageImage3Medium} 600w, ${homePageImage3Large} 800w`,
+    src: homePageImage3Src, 
+    alt: 'Young child portrait - Your support makes a difference' 
+  },
 ];
 
 export const HeroSection: React.FC = () => {

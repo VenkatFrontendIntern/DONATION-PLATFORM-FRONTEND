@@ -1,6 +1,7 @@
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+import { imagetools } from 'vite-imagetools';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
@@ -21,6 +22,9 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react(),
+      imagetools({
+        defaultDirectives: () => new URLSearchParams('format=webp;quality=85'),
+      }),
     ],
     resolve: {
       alias: {
@@ -29,8 +33,13 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       minify: 'esbuild',
+      cssMinify: true,
       esbuildOptions: {
         drop: mode === 'production' ? ['console', 'debugger'] : [],
+        legalComments: 'none',
+        minifyIdentifiers: true,
+        minifySyntax: true,
+        minifyWhitespace: true,
       },
       chunkSizeWarningLimit: 1000,
       sourcemap: mode === 'development',
