@@ -39,7 +39,7 @@ api.interceptors.response.use(
     return response;
   },
   async (error: any) => {
-    const publicEndpoints = ['/auth/login', '/auth/signup', '/auth/refresh', '/auth/forgot', '/auth/reset-password'];
+    const publicEndpoints = ['/auth/login', '/auth/signup', '/auth/refresh', '/auth/forgot', '/auth/reset-password', '/newsletter/subscribe'];
     const isPublicEndpoint = error.config?.url && publicEndpoints.some(endpoint => error.config.url.includes(endpoint));
     const isOnLoginPage = window.location.pathname === '/login' || window.location.pathname === '/signup';
 

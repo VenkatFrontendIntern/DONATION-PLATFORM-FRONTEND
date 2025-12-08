@@ -6,6 +6,7 @@ import { ProgressBar } from '../components/ui/ProgressBar';
 import { Button } from '../components/ui/Button';
 import { SocialShare } from '../components/campaign/SocialShare';
 import { CampaignInfo } from '../components/campaign/CampaignInfo';
+import { MediaGallery } from '../components/campaign/MediaGallery';
 import { OrganizerSection } from '../components/campaign/OrganizerSection';
 import { RecentDonations } from '../components/campaign/RecentDonations';
 import { DonationCard } from '../components/campaign/DonationCard';
@@ -21,6 +22,8 @@ import { Campaign, Donation } from '../types';
 interface CampaignWithPopulated extends Omit<Campaign, 'id' | 'category' | 'imageUrl'> {
   _id: string;
   coverImage: string;
+  galleryImages?: string[];
+  videos?: string[];
   category?: { _id: string; name: string; slug?: string };
   organizerId?: { _id: string; name: string; email: string; avatar?: string };
   organizer: string;
@@ -133,57 +136,74 @@ const CampaignDetail: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Left Column: Image & Content */}
           <div className="md:col-span-2 space-y-6">
-            <CampaignInfo
-              title={campaign.title}
-              description={campaign.description}
-              category={campaign.category}
-              status={campaign.status}
-              rejectionReason={campaign.rejectionReason}
-              coverImage={getImageUrl(campaign.coverImage)}
+            {/* Media Gallery - Shows on all screen sizes */}
+            <MediaGallery
+              coverImage={campaign.coverImage}
+              galleryImages={campaign.galleryImages}
+              videos={campaign.videos}
             />
 
-            {/* Mobile Stats */}
-            <div className="p-4 md:hidden bg-white shadow-sm">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">{campaign.title}</h1>
-              <ProgressBar goal={campaign.goalAmount} raised={campaign.raisedAmount} />
-              
-              {campaign.status === 'rejected' && campaign.rejectionReason && (
-                <div className="mt-4 mb-4">
-                  <RejectionAlert reason={campaign.rejectionReason} />
-                </div>
-              )}
-              
-              <div className="mt-4 flex gap-2">
-                <Button 
-                  onClick={() => {
-                    if (campaign.status === 'rejected') {
-                      toast.error('This campaign has been rejected and is not accepting donations.');
-                      return;
-                    }
-                    setShowDonateModal(true);
-                  }} 
-                  fullWidth
-                  disabled={campaign.status === 'rejected'}
-                >
-                  {campaign.status === 'rejected' ? 'Campaign Rejected' : 'Donate Now'}
-                </Button>
-                <SocialShare url={campaignUrl} title={campaign.title} description={campaign.description} />
-              </div>
+            {/* Campaign Info - Desktop */}
+            <div className="hidden md:block">
+              <CampaignInfo
+                title={campaign.title}
+                description={campaign.description}
+                category={campaign.category}
+                status={campaign.status}
+                rejectionReason={campaign.rejectionReason}
+                coverImage={getImageUrl(campaign.coverImage)}
+              />
             </div>
 
-            {/* Mobile description */}
-            <div className="bg-white p-6 md:hidden shadow-sm">
-              <h3 className="text-lg font-bold mb-2">About the fundraiser</h3>
-              
-              {campaign.status === 'rejected' && campaign.rejectionReason && (
-                <div className="mb-4">
-                  <RejectionAlert reason={campaign.rejectionReason} />
+            {/* Mobile Stats & Info */}
+            <div className="md:hidden space-y-4">
+              <div className="p-4 bg-white shadow-sm">
+                <div className="flex items-center gap-2 text-sm text-primary-600 font-medium mb-2">
+                  {campaign.category && (
+                    <span className="bg-primary-50 px-2 py-1 rounded">{campaign.category.name}</span>
+                  )}
+                  <span>• {campaign.status}</span>
                 </div>
-              )}
-              
-              <p className="text-gray-600 leading-relaxed whitespace-pre-line">
-                {campaign.description}
-              </p>
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">{campaign.title}</h1>
+                <ProgressBar goal={campaign.goalAmount} raised={campaign.raisedAmount} />
+                
+                {campaign.status === 'rejected' && campaign.rejectionReason && (
+                  <div className="mt-4 mb-4">
+                    <RejectionAlert reason={campaign.rejectionReason} />
+                  </div>
+                )}
+                
+                <div className="mt-4 flex gap-2">
+                  <Button 
+                    onClick={() => {
+                      if (campaign.status === 'rejected') {
+                        toast.error('This campaign has been rejected and is not accepting donations.');
+                        return;
+                      }
+                      setShowDonateModal(true);
+                    }} 
+                    fullWidth
+                    disabled={campaign.status === 'rejected'}
+                  >
+                    {campaign.status === 'rejected' ? 'Campaign Rejected' : 'Donate Now'}
+                  </Button>
+                  <SocialShare url={campaignUrl} title={campaign.title} description={campaign.description} />
+                </div>
+              </div>
+
+              <div className="bg-white p-6 shadow-sm">
+                <h3 className="text-lg font-bold mb-2">About the fundraiser</h3>
+                
+                {campaign.status === 'rejected' && campaign.rejectionReason && (
+                  <div className="mb-4">
+                    <RejectionAlert reason={campaign.rejectionReason} />
+                  </div>
+                )}
+                
+                <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+                  {campaign.description}
+                </p>
+              </div>
             </div>
 
             <OrganizerSection 

@@ -7,8 +7,8 @@ interface CreateCampaignNavigationProps {
   currentStep: number;
   totalSteps: number;
   loading: boolean;
-  onPrevious: () => void;
-  onNext: () => void;
+  onPrevious: (e?: React.MouseEvent) => void;
+  onNext: (e?: React.MouseEvent) => void;
 }
 
 export const CreateCampaignNavigation: React.FC<CreateCampaignNavigationProps> = ({
@@ -28,7 +28,11 @@ export const CreateCampaignNavigation: React.FC<CreateCampaignNavigationProps> =
         <Button
           type="button"
           variant="outline"
-          onClick={onPrevious}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onPrevious(e);
+          }}
           disabled={currentStep === 1}
           className="flex items-center justify-center gap-2 order-2 sm:order-1 w-full sm:w-auto min-h-[44px] touch-manipulation"
           size="md"
@@ -40,7 +44,11 @@ export const CreateCampaignNavigation: React.FC<CreateCampaignNavigationProps> =
         {currentStep < totalSteps ? (
           <Button
             type="button"
-            onClick={onNext}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onNext();
+            }}
             className="flex items-center justify-center gap-2 order-1 sm:order-2 w-full sm:w-auto sm:ml-auto min-h-[44px] touch-manipulation"
             size="lg"
           >
@@ -52,6 +60,10 @@ export const CreateCampaignNavigation: React.FC<CreateCampaignNavigationProps> =
             type="submit"
             loading={loading}
             size="lg"
+            onClick={(e) => {
+              // Ensure this is a submit action
+              e.stopPropagation();
+            }}
             className="flex items-center justify-center gap-2 order-1 sm:order-2 w-full sm:w-auto sm:ml-auto min-h-[44px] touch-manipulation group"
           >
             <span className="flex items-center gap-2 text-sm sm:text-base">

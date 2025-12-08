@@ -33,7 +33,7 @@ export const useAdminDashboard = () => {
     total: 0,
     pages: 0,
   });
-  const [activeTab, setActiveTab] = useState<'pending' | 'rejected' | 'my-campaigns' | 'my-donations'>('pending');
+  const [activeTab, setActiveTab] = useState<'pending' | 'rejected' | 'my-campaigns' | 'my-donations' | 'newsletter'>('pending');
 
   const loadingRef = useRef(false);
   const prevTabRef = useRef(activeTab);

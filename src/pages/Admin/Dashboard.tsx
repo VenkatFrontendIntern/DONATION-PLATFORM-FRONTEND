@@ -4,14 +4,17 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useAdminDashboard } from '../../hooks/useAdminDashboard';
 import { useAdminActions } from '../../hooks/useAdminActions';
 import { StatsCards } from '../../components/admin/StatsCards';
+import { AnalyticsSection } from '../../components/admin/AnalyticsSection';
 import { CategoryManagement } from '../../components/admin/CategoryManagement';
 import { PendingCampaignsList } from '../../components/admin/PendingCampaignsList';
 import { AdminTabs } from '../../components/admin/AdminTabs';
 import { MyCampaignsSection } from '../../components/admin/MyCampaignsSection';
 import { MyDonationsSection } from '../../components/admin/MyDonationsSection';
+import { NewsletterManagement } from '../../components/admin/NewsletterManagement';
 import { ConfirmModal } from '../../components/ui/ConfirmModal';
 import toast from 'react-hot-toast';
 import { ShimmerAdminDashboard } from '../../components/ui/Shimmer';
+import { Link } from 'react-router-dom';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -83,17 +86,25 @@ const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 pb-24">
+    <div className="min-h-screen bg-gray-50/50 py-8 pb-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-sm text-gray-500 mt-1">Welcome back, {user?.name}</p>
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-2">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p className="text-sm text-gray-500 mt-1">Welcome back, {user?.name}</p>
+            </div>
           </div>
         </div>
 
+        {/* Top Row: Summary Stats Cards */}
         {stats && <StatsCards stats={stats} />}
 
+        {/* Middle Row: Analytics Charts */}
+        {stats && <AnalyticsSection stats={stats} />}
+
+        {/* Category Management Section */}
         <CategoryManagement
           categories={categories}
           showModal={showCategoryModal}
@@ -110,6 +121,7 @@ const AdminDashboard: React.FC = () => {
           createLoading={createLoading}
         />
 
+        {/* Tab Navigation */}
         <AdminTabs
           activeTab={activeTab}
           onTabChange={setActiveTab}
@@ -148,6 +160,8 @@ const AdminDashboard: React.FC = () => {
             loading={myDataLoading}
             onDownloadCertificate={handleDownloadCertificate}
           />
+        ) : activeTab === 'newsletter' ? (
+          <NewsletterManagement campaigns={campaigns} />
         ) : null}
 
         {/* Confirmation Modal */}

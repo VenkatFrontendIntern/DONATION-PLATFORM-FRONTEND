@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Header } from './Header';
+import { Footer } from './Footer';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,38 +19,7 @@ export const Layout: React.FC<LayoutProps> = React.memo(({
       <main className="flex-1">
         {children}
       </main>
-      {showFooter && (
-        <>
-          <footer className="bg-gray-900 text-gray-400 pt-6 sm:pt-8 md:pt-12 pb-12">
-            <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-8">
-              <div>
-                <h3 className="text-white font-bold text-lg mb-4">Engala Trust</h3>
-                <p className="text-sm">Empowering change through transparent and secure giving.</p>
-              </div>
-              <div>
-                <h4 className="text-white font-medium mb-4">Platform</h4>
-                <ul className="space-y-2 text-sm">
-                  <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
-                  <li>How it Works</li>
-                  <li>Pricing</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-white font-medium mb-4">Legal</h4>
-                <ul className="space-y-2 text-sm">
-                  <li>Privacy Policy</li>
-                  <li>Terms of Use</li>
-                  <li>80G Info</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-white font-medium mb-4">Contact</h4>
-                <p className="text-sm">support@engalatrust.org</p>
-              </div>
-            </div>
-          </footer>
-        </>
-      )}
+      {showFooter && <Footer />}
     </div>
   );
 }) as React.FC<LayoutProps>;

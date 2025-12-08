@@ -1,5 +1,5 @@
-import React, { memo } from 'react';
-import { motion } from 'framer-motion';
+import React, { memo, useRef } from 'react';
+import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { getImageUrl } from '../../utils/imageUtils';
 
@@ -11,9 +11,41 @@ interface CampaignCardProps {
 
 export const CampaignCard: React.FC<CampaignCardProps> = memo(({ campaign, index = 0, priority = false }) => {
   const progressPercentage = Math.min((campaign.raisedAmount / campaign.goalAmount) * 100, 100);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // 3D Tilt Effect
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x, { stiffness: 500, damping: 100 });
+  const mouseYSpring = useSpring(y, { stiffness: 500, damping: 100 });
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ['7.5deg', '-7.5deg']);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ['-7.5deg', '7.5deg']);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+
+    const rect = cardRef.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
 
   return (
     <motion.div
+      ref={cardRef}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -21,9 +53,15 @@ export const CampaignCard: React.FC<CampaignCardProps> = memo(({ campaign, index
         delay: index * 0.05,
         ease: [0.22, 1, 0.36, 1]
       }}
-      whileHover={{ y: -4 }}
-      className="group relative bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-full transition-all duration-300 hover:shadow-xl hover:shadow-gray-200/50"
-      style={{ willChange: 'transform, opacity' }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: 'preserve-3d',
+        willChange: 'transform',
+      }}
+      className="group relative bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-full transition-shadow duration-300 hover:shadow-xl hover:shadow-gray-200/50"
     >
       {/* Image Container */}
       <div className="relative h-48 sm:h-56 md:h-64 w-full overflow-hidden bg-gray-100">
@@ -92,16 +130,18 @@ export const CampaignCard: React.FC<CampaignCardProps> = memo(({ campaign, index
         </div>
 
         {/* Action Button - Apple-like */}
-        <Link to={`/campaign/${campaign._id}`} className="mt-auto">
-          <motion.button
-            className="w-full py-3 sm:py-3.5 px-4 sm:px-5 bg-primary-600 text-white rounded-xl sm:rounded-2xl text-sm sm:text-base font-semibold shadow-sm hover:bg-primary-700 active:bg-primary-800 transition-all duration-200 touch-manipulation min-h-[44px] flex items-center justify-center"
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-            style={{ willChange: 'transform' }}
-          >
-            Donate Now
-          </motion.button>
-        </Link>
+        <div className="mt-auto" style={{ transform: 'translateZ(20px)' }}>
+          <Link to={`/campaign/${campaign._id}`}>
+            <motion.button
+              className="w-full py-3 sm:py-3.5 px-4 sm:px-5 bg-primary-600 text-white rounded-xl sm:rounded-2xl text-sm sm:text-base font-semibold shadow-sm hover:bg-primary-700 active:bg-primary-800 transition-all duration-200 touch-manipulation min-h-[44px] flex items-center justify-center"
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              style={{ willChange: 'transform' }}
+            >
+              Donate Now
+            </motion.button>
+          </Link>
+        </div>
       </div>
     </motion.div>
   );

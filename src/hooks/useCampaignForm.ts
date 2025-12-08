@@ -23,7 +23,9 @@ export const useCampaignForm = () => {
   });
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [galleryImages, setGalleryImages] = useState<File[]>([]);
+  const [videos, setVideos] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [previewVideos, setPreviewVideos] = useState<string[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -70,6 +72,20 @@ export const useCampaignForm = () => {
     }
   };
 
+  const handleVideosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      setVideos([...videos, ...files]);
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviewVideos((prev) => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
   const removeImage = (index: number) => {
     if (index === 0) {
       setCoverImage(null);
@@ -78,6 +94,11 @@ export const useCampaignForm = () => {
       setGalleryImages(galleryImages.filter((_, i) => i !== index - 1));
       setPreviewImages(previewImages.filter((_, i) => i !== index));
     }
+  };
+
+  const removeVideo = (index: number) => {
+    setVideos(videos.filter((_, i) => i !== index));
+    setPreviewVideos(previewVideos.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -120,6 +141,10 @@ export const useCampaignForm = () => {
         formDataToSend.append('images', img);
       });
 
+      videos.forEach((video) => {
+        formDataToSend.append('videos', video);
+      });
+
       await campaignService.create(formDataToSend);
       toast.success('Campaign created successfully! It will be reviewed by admin.');
       navigate('/dashboard');
@@ -135,13 +160,17 @@ export const useCampaignForm = () => {
     setFormData,
     coverImage,
     galleryImages,
+    videos,
     previewImages,
+    previewVideos,
     categories,
     loading,
     handleChange,
     handleCoverImageChange,
     handleGalleryImagesChange,
+    handleVideosChange,
     removeImage,
+    removeVideo,
     handleSubmit,
   };
 };

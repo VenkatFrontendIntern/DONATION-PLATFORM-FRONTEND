@@ -1,8 +1,8 @@
 import React from 'react';
 
 interface AdminTabsProps {
-  activeTab: 'pending' | 'rejected' | 'my-campaigns' | 'my-donations';
-  onTabChange: (tab: 'pending' | 'rejected' | 'my-campaigns' | 'my-donations') => void;
+  activeTab: 'pending' | 'rejected' | 'my-campaigns' | 'my-donations' | 'newsletter';
+  onTabChange: (tab: 'pending' | 'rejected' | 'my-campaigns' | 'my-donations' | 'newsletter') => void;
   pendingCount?: number;
   rejectedCount?: number;
   myCampaignsCount?: number;
@@ -80,6 +80,16 @@ export const AdminTabs: React.FC<AdminTabsProps> = ({
                 {myDonationsCount}
               </span>
             )}
+          </button>
+          <button
+            onClick={() => onTabChange('newsletter')}
+            className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+              activeTab === 'newsletter'
+                ? 'border-primary-500 text-primary-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Newsletter
           </button>
         </nav>
       </div>

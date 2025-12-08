@@ -116,8 +116,8 @@ export const usePaymentVerification = () => {
           'Network error occurred during verification. Your payment may have been processed. Please check your email or dashboard for confirmation.',
           { duration: 6000 }
         );
-        setSuccess(true);
-        onSuccess?.();
+        // Don't set success to true - let user check status manually
+        // The webhook handler will process the payment if it succeeded
       } else {
         throw verifyError;
       }

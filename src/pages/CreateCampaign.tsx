@@ -21,12 +21,15 @@ const CreateCampaign: React.FC = () => {
     formData,
     setFormData,
     previewImages,
+    previewVideos,
     categories,
     loading,
     handleChange,
     handleCoverImageChange,
     handleGalleryImagesChange,
+    handleVideosChange,
     removeImage,
+    removeVideo,
     handleSubmit,
   } = useCampaignForm();
 
@@ -40,7 +43,11 @@ const CreateCampaign: React.FC = () => {
     { number: 5, title: 'Social Links', icon: Share2 },
   ], []);
 
-  const handleNext = () => {
+  const handleNext = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (validateStep(currentStep, formData, previewImages)) {
       if (currentStep < TOTAL_STEPS) {
         setCurrentStep(currentStep + 1);
@@ -49,7 +56,11 @@ const CreateCampaign: React.FC = () => {
     }
   };
 
-  const handlePrevious = () => {
+  const handlePrevious = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -58,8 +69,25 @@ const CreateCampaign: React.FC = () => {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    
+    // Only allow submission on the last step
+    if (currentStep !== TOTAL_STEPS) {
+      // If not on last step, just go to next step
+      handleNext();
+      return;
+    }
+    
     if (validateStep(currentStep, formData, previewImages)) {
       await handleSubmit(e);
+    }
+  };
+
+  // Prevent form submission on Enter key press unless on last step
+  const handleFormKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && currentStep !== TOTAL_STEPS) {
+      e.preventDefault();
+      handleNext();
     }
   };
 
@@ -68,12 +96,15 @@ const CreateCampaign: React.FC = () => {
     currentStep,
     formData,
     previewImages,
+    previewVideos,
     categories,
     handleChange,
     setFormData,
     handleCoverImageChange,
     handleGalleryImagesChange,
+    handleVideosChange,
     removeImage,
+    removeVideo,
   };
 
   return (
@@ -86,7 +117,7 @@ const CreateCampaign: React.FC = () => {
           steps={steps}
         />
 
-        <form onSubmit={handleFormSubmit} className="space-y-4 sm:space-y-6">
+        <form onSubmit={handleFormSubmit} onKeyDown={handleFormKeyDown} className="space-y-4 sm:space-y-6">
           <AnimatePresence mode="wait">
             {currentStep === 1 && <BasicInfoStep key="step-1" {...stepProps} />}
             {currentStep === 2 && <CategoryStep key="step-2" {...stepProps} />}

@@ -1,22 +1,29 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ImageUpload } from '../ImageUpload';
-import { Image as ImageIcon } from 'lucide-react';
+import { VideoUpload } from '../VideoUpload';
+import { Image as ImageIcon, Video } from 'lucide-react';
 
 interface StepProps {
   currentStep: number;
   previewImages: string[];
-  handleCoverImageChange: (file: File) => void;
-  handleGalleryImagesChange: (files: File[]) => void;
+  previewVideos: string[];
+  handleCoverImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleGalleryImagesChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleVideosChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   removeImage: (index: number) => void;
+  removeVideo: (index: number) => void;
 }
 
 export const ImagesStep: React.FC<StepProps> = ({
   currentStep,
   previewImages,
+  previewVideos,
   handleCoverImageChange,
   handleGalleryImagesChange,
+  handleVideosChange,
   removeImage,
+  removeVideo,
 }) => {
   return (
     <motion.div
@@ -31,8 +38,8 @@ export const ImagesStep: React.FC<StepProps> = ({
           <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5 text-secondary-600" />
         </div>
         <div className="flex-1 min-w-0">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Visuals</h2>
-          <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">Add images to make your campaign stand out</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Media</h2>
+          <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">Add images and videos to make your campaign stand out</p>
         </div>
       </div>
       
@@ -51,6 +58,13 @@ export const ImagesStep: React.FC<StepProps> = ({
           onGalleryImagesChange={handleGalleryImagesChange}
           onRemoveImage={removeImage}
           isGallery
+        />
+
+        <VideoUpload
+          label="Videos (Optional)"
+          previewVideos={previewVideos}
+          onVideosChange={handleVideosChange}
+          onRemoveVideo={removeVideo}
         />
       </div>
     </motion.div>

@@ -29,7 +29,6 @@ export const retryWithBackoff = async <T>(
       
       if (attempt < maxRetries - 1) {
         const delay = baseDelay * Math.pow(2, attempt);
-        console.warn(`Network error on attempt ${attempt + 1}, retrying in ${delay}ms...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
