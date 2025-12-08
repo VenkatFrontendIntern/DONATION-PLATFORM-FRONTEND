@@ -101,8 +101,8 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="p-6 border-b border-gray-200">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
+      <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-white to-gray-50/50">
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-xl font-bold text-gray-900">
@@ -115,8 +115,8 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
             )}
           </div>
           <span
-            className={`px-3 py-1 rounded-full text-sm font-semibold ${
-              isRejected ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
+            className={`px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm ${
+              isRejected ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-yellow-100 text-yellow-700 border border-yellow-200'
             }`}
           >
             {pagination.total} {pagination.total === 1 ? 'campaign' : 'campaigns'}
@@ -130,35 +130,35 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
         <>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-gray-50/80 border-b-2 border-gray-200">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Campaign
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Organizer
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Goal
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Date
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Status
                   </th>
                   {showActions && (
-                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
                       Actions
                     </th>
                   )}
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-100">
                 {campaigns.map((campaign) => (
                   <tr
                     key={campaign._id}
-                    className="hover:bg-gray-50 transition-colors"
+                    className="hover:bg-emerald-50/50 transition-all duration-200 group"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       {rejectingId === campaign._id ? (
@@ -179,10 +179,10 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
                           <img
                             src={getImageUrl(campaign.coverImage)}
                             alt={campaign.title}
-                            className="h-16 w-16 rounded-lg object-cover border border-gray-200"
+                            className="h-16 w-16 rounded-lg object-cover border border-gray-200 group-hover:border-emerald-300 transition-colors duration-200 shadow-sm"
                           />
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-semibold text-gray-900 truncate">
+                            <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-emerald-700 transition-colors">
                               {campaign.title}
                             </p>
                             {campaign.category && (
@@ -203,7 +203,7 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-semibold text-gray-900">
+                      <div className="text-sm font-bold text-gray-900">
                         {CURRENCY_SYMBOL}
                         {campaign.goalAmount.toLocaleString('en-IN')}
                       </div>
@@ -211,15 +211,15 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Calendar className="h-4 w-4 text-gray-400" />
-                        {formatDate(campaign.createdAt)}
+                        <span className="font-medium">{formatDate(campaign.createdAt)}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold shadow-sm ${
                           isRejected
-                            ? 'bg-red-100 text-red-700'
-                            : 'bg-yellow-100 text-yellow-700'
+                            ? 'bg-red-100 text-red-700 border border-red-200'
+                            : 'bg-yellow-100 text-yellow-700 border border-yellow-200'
                         }`}
                       >
                         {isRejected ? 'Rejected' : 'Pending'}
@@ -229,7 +229,7 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end gap-2">
                           <Link to={`/campaign/${campaign._id}`}>
-                            <Button variant="outline" size="sm">
+                            <Button variant="outline" size="sm" className="hover:bg-gray-100">
                               <Eye className="h-4 w-4 mr-1" />
                               View
                             </Button>
@@ -238,7 +238,7 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
                             size="sm"
                             onClick={() => onApprove(campaign._id)}
                             loading={actionLoading === campaign._id}
-                            className="bg-emerald-600 hover:bg-emerald-700"
+                            className="bg-emerald-600 hover:bg-emerald-700 shadow-sm hover:shadow-md transition-all"
                           >
                             <Check className="h-4 w-4 mr-1" />
                             Approve
@@ -248,7 +248,7 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
                             size="sm"
                             onClick={() => onSetRejectingId(campaign._id)}
                             disabled={actionLoading === campaign._id}
-                            className="border-red-500 text-red-600 hover:bg-red-50"
+                            className="border-red-500 text-red-600 hover:bg-red-50 hover:border-red-600 transition-all"
                           >
                             <X className="h-4 w-4 mr-1" />
                             Reject

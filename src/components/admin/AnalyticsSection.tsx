@@ -81,13 +81,21 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ stats }) => 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
-          <p className="text-sm font-semibold text-gray-900 mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.name}: {entry.name === 'Amount' ? `₹${entry.value.toLocaleString('en-IN')}` : entry.value}
-            </p>
-          ))}
+        <div className="bg-white p-4 rounded-lg shadow-xl border border-gray-200 backdrop-blur-sm">
+          <p className="text-sm font-bold text-gray-900 mb-3">{label}</p>
+          <div className="space-y-2">
+            {payload.map((entry: any, index: number) => (
+              <div key={index} className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
+                  <span className="text-sm font-medium text-gray-600">{entry.name}:</span>
+                </div>
+                <span className="text-sm font-bold text-gray-900">
+                  {entry.name === 'Amount' ? `₹${entry.value.toLocaleString('en-IN')}` : entry.value}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       );
     }
@@ -125,9 +133,9 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ stats }) => 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       {/* Donation Trends Chart */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-300">
         <div className="mb-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-1">Donation Trends</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-1">Donation Volume</h3>
           <p className="text-sm text-gray-500">Last 6 months overview</p>
         </div>
         <ResponsiveContainer width="100%" height={300}>
@@ -198,10 +206,10 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ stats }) => 
       </div>
 
       {/* Campaign Status Chart */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-300">
         <div className="mb-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-1">Campaign Status</h3>
-          <p className="text-sm text-gray-500">Distribution overview</p>
+          <h3 className="text-lg font-bold text-gray-900 mb-1">Campaign Status Distribution</h3>
+          <p className="text-sm text-gray-500">Current status breakdown</p>
         </div>
         {campaignStatusData.length > 0 ? (
           <>
@@ -227,10 +235,13 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({ stats }) => 
                     if (active && payload && payload.length) {
                       const data = payload[0].payload;
                       return (
-                        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
-                          <p className="text-sm font-semibold text-gray-900 mb-1">{data.name}</p>
-                          <p className="text-sm" style={{ color: data.color }}>
-                            {data.value} campaigns
+                        <div className="bg-white p-4 rounded-lg shadow-xl border border-gray-200 backdrop-blur-sm">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: data.color }} />
+                            <p className="text-sm font-bold text-gray-900">{data.name}</p>
+                          </div>
+                          <p className="text-sm font-semibold" style={{ color: data.color }}>
+                            {data.value} {data.value === 1 ? 'campaign' : 'campaigns'} ({data.percentage}%)
                           </p>
                         </div>
                       );
