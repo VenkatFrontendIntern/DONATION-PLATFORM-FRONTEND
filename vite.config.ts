@@ -22,9 +22,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react(),
-      imagetools({
-        defaultDirectives: () => new URLSearchParams('format=webp;quality=85'),
-      }),
+      imagetools(),
     ],
     resolve: {
       alias: {
