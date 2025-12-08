@@ -47,9 +47,9 @@ export const Shimmer: React.FC<ShimmerProps> = ({
       case 'glow':
         return (
           <>
-            <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-blue-100/60 to-transparent animate-shimmer-glow" />
+            <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer-glow" />
             <div 
-              className="absolute inset-0 -translate-x-full animate-shimmer-delayed bg-gradient-to-r from-transparent via-blue-50/40 to-transparent animate-shimmer-glow"
+              className="absolute inset-0 -translate-x-full animate-shimmer-delayed bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer-glow"
               style={{ animationDelay: '0.5s' }}
             />
           </>
@@ -75,10 +75,6 @@ export const Shimmer: React.FC<ShimmerProps> = ({
             <div 
               className="absolute inset-0 -translate-x-full animate-shimmer-delayed bg-gradient-to-r from-transparent via-white/50 to-transparent"
               style={{ animationDelay: '0.5s' }}
-            />
-            <div 
-              className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-blue-50/20 to-transparent"
-              style={{ animationDelay: '1s', animationDuration: '3s' }}
             />
             <div className="absolute inset-0 animate-shimmer-pulse opacity-20" />
           </>

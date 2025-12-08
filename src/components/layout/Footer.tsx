@@ -39,38 +39,16 @@ export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
-    { icon: Facebook, href: 'https://facebook.com', label: 'Facebook' },
-    { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
-    { icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
-    { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
+    { icon: Facebook, href: '#', label: 'Facebook' },
+    { icon: Twitter, href: '#', label: 'Twitter' },
+    { icon: Instagram, href: '#', label: 'Instagram' },
+    { icon: Linkedin, href: '#', label: 'LinkedIn' },
   ];
 
   const platformLinks = [
     { label: 'About Us', to: '/about' },
-    { label: 'How it Works', to: '/about' },
     { label: 'Campaigns', to: '/campaigns' },
-    { label: 'Create Campaign', to: '/create-campaign' },
-  ];
-
-  const communityLinks = [
-    { label: 'Success Stories', to: '/campaigns' },
-    { label: 'Impact Reports', to: '/about' },
-    { label: 'Volunteer', to: '/about' },
-    { label: 'Partners', to: '/about' },
-  ];
-
-  const legalLinks = [
-    { label: 'Privacy Policy', to: '/about' },
-    { label: 'Terms of Use', to: '/about' },
-    { label: '80G Certificate Info', to: '/about' },
-    { label: 'Refund Policy', to: '/about' },
-  ];
-
-  const supportLinks = [
-    { label: 'Help Center', to: '/about' },
-    { label: 'Contact Us', to: '/about' },
-    { label: 'FAQs', to: '/about' },
-    { label: 'Report Issue', to: '/about' },
+    { label: 'Create Campaign', to: '/start-campaign' },
   ];
 
   return (
@@ -87,7 +65,7 @@ export const Footer: React.FC = () => {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 mb-12">
           {/* Brand Section */}
           <div className="lg:col-span-2">
             <motion.div
@@ -164,15 +142,6 @@ export const Footer: React.FC = () => {
 
           {/* Platform Links */}
           <FooterLinkSection title="Platform" links={platformLinks} delay={0.1} />
-
-          {/* Community Links */}
-          <FooterLinkSection title="Community" links={communityLinks} delay={0.2} />
-
-          {/* Legal & Support Combined */}
-          <div className="space-y-6">
-            <FooterLinkSection title="Legal" links={legalLinks} delay={0.3} />
-            <FooterLinkSection title="Support" links={supportLinks} delay={0.4} />
-          </div>
         </div>
 
         {/* Divider */}

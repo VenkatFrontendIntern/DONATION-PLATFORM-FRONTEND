@@ -200,15 +200,15 @@ input[type="number"] {
 /* Admin Dashboard - Glow Effect */
 @keyframes shimmer-glow {
   0% {
-    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
     opacity: 0.7;
   }
   50% {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 255, 255, 0.4);
     opacity: 1;
   }
   100% {
-    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
     opacity: 0.7;
   }
 }
