@@ -38,27 +38,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    checkAuth();
-  }, []);
+    let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
 
-  const checkAuth = async (): Promise<void> => {
-    if (authService.isAuthenticated()) {
-      try {
-        const response = await authService.getMe();
-        setUser(response.user);
-      } catch (error: any) {
-        // Only logout if it's an authentication error (401/403), not network errors
-        if (error.response?.status === 401 || error.response?.status === 403) {
-          authService.logout();
-          setUser(null);
-        } else {
-          // For network errors, keep the token but don't set user
-          // This allows retry on next page load
+    const checkAuth = async (): Promise<void> => {
+      if (authService.isAuthenticated()) {
+        try {
+          const response = await authService.getMe();
+          if (isMounted) {
+            setUser(response.user);
+          }
+        } catch (error: any) {
+          // Only logout if it's an authentication error (401/403), not network errors
+          if (error.response?.status === 401 || error.response?.status === 403) {
+            if (isMounted) {
+              authService.logout();
+              setUser(null);
+            }
+          } else {
+            // For network errors, keep the token but don't set user
+            // This allows retry on next page load
+          }
         }
       }
-    }
-    setLoading(false);
-  };
+      if (isMounted) {
+        setLoading(false);
+      }
+    };
+
+    // Set a timeout to prevent infinite loading
+    timeoutId = setTimeout(() => {
+      if (isMounted) {
+        setLoading(false);
+      }
+    }, 10000); // 10 second max loading time
+
+    checkAuth();
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
+  }, []);
 
   const login = async (email: string, password: string): Promise<AuthResponse> => {
     try {
@@ -72,9 +93,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const signup = async (userData: SignupData): Promise<AuthResponse> => {
-    const response = await authService.signup(userData);
-    setUser(response.user);
-    return response;
+    try {
+      const response = await authService.signup(userData);
+      setUser(response.user);
+      return response;
+    } catch (error: any) {
+      // Re-throw error so Signup component can handle it
+      throw error;
+    }
   };
 
   const logout = (): void => {

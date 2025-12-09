@@ -23,6 +23,8 @@ const api: AxiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true, // Enable sending cookies (for refreshToken httpOnly cookie)
+  timeout: 30000, // 30 seconds timeout
+  validateStatus: (status) => status < 500, // Don't throw for 4xx errors
 });
 
 api.interceptors.request.use(
@@ -49,29 +51,55 @@ api.interceptors.response.use(
     return response;
   },
   async (error: any) => {
+    // Handle request cancellation (component unmounted)
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
+
+    // Handle timeout errors
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+      error.userMessage = 'Request timeout. Please check your connection and try again.';
+      return Promise.reject(error);
+    }
+
     const publicEndpoints = ['/auth/login', '/auth/signup', '/auth/refresh', '/auth/forgot', '/auth/reset-password', '/newsletter/subscribe'];
     const isPublicEndpoint = error.config?.url && publicEndpoints.some(endpoint => error.config.url.includes(endpoint));
     const isOnLoginPage = window.location.pathname === '/login' || window.location.pathname === '/signup';
 
     if (error.response?.status === 401 && !isPublicEndpoint && !isOnLoginPage) {
-      // refreshToken is now in httpOnly cookie, so we just call the refresh endpoint
-      try {
-        const response = await api.post(`${API_URL}/auth/refresh`);
-        const responseData = response.data.data || response.data;
-        const { token } = responseData;
-        localStorage.setItem('token', token);
-        // refreshToken cookie is automatically updated by server
-        
-        if (error.config) {
-          error.config.headers.Authorization = `Bearer ${token}`;
-          return api.request(error.config);
-        }
-      } catch (refreshError) {
+      // Prevent infinite refresh loops
+      if (error.config?.url?.includes('/auth/refresh')) {
         localStorage.removeItem('token');
-        // refreshToken cookie will be cleared by server on invalid token
         if (!isOnLoginPage) {
           window.location.href = '/login';
         }
+        return Promise.reject(error);
+      }
+
+      // refreshToken is now in httpOnly cookie, so we just call the refresh endpoint
+      try {
+        const response = await api.post('/auth/refresh', {}, {
+          timeout: 10000, // Shorter timeout for refresh
+        });
+        const responseData = response.data.data || response.data;
+        const { token } = responseData;
+        if (token) {
+          localStorage.setItem('token', token);
+          // refreshToken cookie is automatically updated by server
+          
+          if (error.config && !error.config._retry) {
+            error.config._retry = true; // Prevent infinite retry loops
+            error.config.headers.Authorization = `Bearer ${token}`;
+            return api.request(error.config);
+          }
+        }
+      } catch (refreshError: any) {
+        localStorage.removeItem('token');
+        // refreshToken cookie will be cleared by server on invalid token
+        if (!isOnLoginPage && !refreshError.config?.url?.includes('/auth/refresh')) {
+          window.location.href = '/login';
+        }
+        return Promise.reject(refreshError);
       }
     }
     
@@ -128,11 +156,27 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // Handle network errors
+    if (error.code === 'ERR_NETWORK' || !error.response) {
+      error.userMessage = 'Network error. Please check your internet connection and try again.';
+      error.isNetworkError = true;
+      return Promise.reject(error);
+    }
+
+    // Handle 503 Service Unavailable
+    if (error.response?.status === 503) {
+      error.userMessage = 'Service temporarily unavailable. Please try again in a moment.';
+      return Promise.reject(error);
+    }
+
     error.userMessage = getErrorMessage(error);
 
     return Promise.reject(error);
   }
 );
+
+// Export cancel token source creator for request cancellation
+export const createCancelToken = () => axios.CancelToken.source();
 
 export default api;
 

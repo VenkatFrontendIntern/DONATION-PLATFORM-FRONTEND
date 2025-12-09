@@ -23,15 +23,31 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Only log errors in development mode to avoid console noise in production
+    // Log errors in development mode
     if (import.meta.env.DEV) {
       console.error('ErrorBoundary caught an error:', error, errorInfo);
     }
+    
+    // In production, you might want to send to error tracking service
+    // Example: Sentry.captureException(error, { contexts: { react: errorInfo } });
+    
+    // Log error details for debugging
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+    });
   }
 
   private handleReset = () => {
     this.setState({ hasError: false, error: null });
-    window.location.href = '/';
+    // Use replace to prevent back button from going to error state
+    window.location.replace('/');
+  };
+
+  private handleReload = () => {
+    // Force reload to clear any cached state
+    window.location.reload();
   };
 
   public render() {
@@ -57,8 +73,8 @@ export class ErrorBoundary extends Component<Props, State> {
                   Go to Home
                 </Button>
                 <button
-                  onClick={() => window.location.reload()}
-                  className="text-sm text-gray-600 hover:text-gray-900"
+                  onClick={this.handleReload}
+                  className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   Reload Page
                 </button>

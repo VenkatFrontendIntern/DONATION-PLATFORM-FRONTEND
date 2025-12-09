@@ -129,11 +129,12 @@ console.warn = function(...args: any[]) {
   originalWarn.apply(console, args);
 };
 
-// Suppress unhandled promise rejections for admin endpoints
+// Global error handler for unhandled promise rejections
 window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
   const error = event.reason;
   const errorString = (error?.message || error?.stack || String(error) || '').toLowerCase();
   
+  // Suppress known admin endpoint errors
   if (
     errorString.includes('donation-trends') ||
     errorString.includes('/admin/donation-trends') ||
@@ -143,6 +144,31 @@ window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => 
     event.preventDefault(); // Suppress the error completely
     return;
   }
+
+  // Suppress axios cancellation errors (component unmounted)
+  if (error?.message?.includes('canceled') || error?.message?.includes('Cancel')) {
+    event.preventDefault();
+    return;
+  }
+
+  // Log other unhandled rejections in development
+  if (import.meta.env.DEV) {
+    console.error('Unhandled promise rejection:', error);
+  }
+  
+  // In production, you might want to send to error tracking service
+  // Example: Sentry.captureException(error);
+});
+
+// Handle global errors
+window.addEventListener('error', (event: ErrorEvent) => {
+  // Log errors in development
+  if (import.meta.env.DEV) {
+    console.error('Global error:', event.error);
+  }
+  
+  // In production, send to error tracking service
+  // Example: Sentry.captureException(event.error);
 });
 
 const rootElement = document.getElementById('root');
