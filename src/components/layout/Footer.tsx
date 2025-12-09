@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type FC, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -14,11 +14,11 @@ import {
 import toast from 'react-hot-toast';
 import { newsletterService } from '../../services/newsletterService';
 
-export const Footer: React.FC = () => {
+export const Footer: FC = () => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+  const handleNewsletterSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email || isSubmitting) return;
     
@@ -65,9 +65,9 @@ export const Footer: React.FC = () => {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 mb-12">
           {/* Brand Section */}
-          <div className="lg:col-span-2">
+          <div className="md:col-span-2">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -85,7 +85,7 @@ export const Footer: React.FC = () => {
               {/* Newsletter Subscription */}
               <div className="mb-6">
                 <h4 className="text-white font-semibold text-sm mb-3">Stay Updated</h4>
-                <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
+                <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="email"
                     value={email}
@@ -99,7 +99,7 @@ export const Footer: React.FC = () => {
                     disabled={isSubmitting}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[48px]"
+                    className="px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[48px] sm:w-auto"
                   >
                     {isSubmitting ? (
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -153,21 +153,21 @@ export const Footer: React.FC = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.5 }}
-          className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500"
+          className="flex flex-col items-center gap-4 text-sm text-gray-500 text-center sm:text-left sm:flex-row sm:justify-between"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center sm:justify-start gap-2">
             <span>© {currentYear} Engala Trust. All rights reserved.</span>
           </div>
-          <div className="flex items-center gap-1 text-gray-500">
+          <div className="flex items-center justify-center sm:justify-start gap-1 text-gray-500">
             <span>Made with</span>
             <Heart className="w-4 h-4 text-primary-500 fill-primary-500" />
             <span>by Engala Trust</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center sm:justify-start gap-2">
             <Mail className="w-4 h-4" />
             <a
               href="mailto:support@engalatrust.org"
-              className="hover:text-primary-400 transition-colors"
+              className="hover:text-primary-400 transition-colors break-all sm:break-normal"
             >
               support@engalatrust.org
             </a>
@@ -184,7 +184,7 @@ interface FooterLinkSectionProps {
   delay?: number;
 }
 
-const FooterLinkSection: React.FC<FooterLinkSectionProps> = ({ title, links, delay = 0 }) => {
+const FooterLinkSection: FC<FooterLinkSectionProps> = ({ title, links, delay = 0 }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
