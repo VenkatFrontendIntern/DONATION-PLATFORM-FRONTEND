@@ -38,6 +38,12 @@ interface UsersResponse {
 interface DonationsResponse {
   donations: any[];
   total?: number;
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
 }
 
 interface CategoryData {
@@ -131,6 +137,7 @@ export const adminService = {
     return {
       donations: items,
       total: pagination.total,
+      pagination: pagination,
     };
   },
 

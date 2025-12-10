@@ -49,15 +49,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setUser(response.user);
           }
         } catch (error: any) {
-          // Only logout if it's an authentication error (401/403), not network errors
-          if (error.response?.status === 401 || error.response?.status === 403) {
+          // Handle different error scenarios gracefully
+          const status = error.response?.status;
+          const isNetworkError = error.code === 'ERR_NETWORK' || !error.response;
+          const isServerError = status >= 500;
+          const isServiceUnavailable = status === 503;
+          
+          // Only logout on clear authentication failures (401/403), not on:
+          // - Network errors (might be temporary)
+          // - Server errors (500+) which might be DB connection issues
+          // - Service unavailable (503) which might be DB connection issues
+          if ((status === 401 || status === 403) && !isNetworkError && !isServerError && !isServiceUnavailable) {
+            // Clear authentication error - token is invalid
             if (isMounted) {
               authService.logout();
               setUser(null);
             }
           } else {
-            // For network errors, keep the token but don't set user
-            // This allows retry on next page load
+            // For network/server errors, keep the token but don't set user
+            // This allows retry on next page load or refresh
+            // The user can still use the app, just not authenticated
+            if (isMounted) {
+              setUser(null);
+            }
           }
         }
       }

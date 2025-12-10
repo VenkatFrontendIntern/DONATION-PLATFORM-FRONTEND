@@ -8,7 +8,10 @@ export interface PaginationProps {
   totalItems: number;
   itemsPerPage: number;
   onPageChange: (page: number) => void;
+  onLimitChange?: (limit: number) => void;
   showInfo?: boolean;
+  showLimitSelector?: boolean;
+  limitOptions?: number[];
   className?: string;
 }
 
@@ -18,16 +21,20 @@ export const Pagination: React.FC<PaginationProps> = ({
   totalItems,
   itemsPerPage,
   onPageChange,
+  onLimitChange,
   showInfo = true,
+  showLimitSelector = true,
+  limitOptions = [5, 10, 15, 20, 25],
   className = '',
 }) => {
-  // Hide pagination if there's only 1 page
-  if (totalPages <= 1) {
-    return null;
-  }
-
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+  // Always show pagination if limit selector is enabled or if there are items
+  // Only hide if no items and no limit selector
+  if (totalItems === 0 && !showLimitSelector) {
+    return null;
+  }
 
   // Generate page numbers to display (max 3 page buttons)
   const getPageNumbers = () => {
@@ -72,17 +79,47 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   const pageNumbers = getPageNumbers();
 
-  return (
-    <div className={`flex flex-col sm:flex-row items-center justify-center gap-4 ${className}`}>
-      {showInfo && (
-        <div className="text-sm text-gray-600">
-          Showing <span className="font-medium">{startItem}</span> to{' '}
-          <span className="font-medium">{endItem}</span> of{' '}
-          <span className="font-medium">{totalItems}</span> results
-        </div>
-      )}
+  const handleLimitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newLimit = Number(e.target.value);
+    if (onLimitChange) {
+      onLimitChange(newLimit);
+    }
+  };
 
-      <div className="flex items-center gap-2">
+  return (
+    <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 ${className}`}>
+      <div className="flex flex-col sm:flex-row items-center gap-4">
+        {showInfo && (
+          <div className="text-sm text-gray-600">
+            Showing <span className="font-medium">{startItem}</span> to{' '}
+            <span className="font-medium">{endItem}</span> of{' '}
+            <span className="font-medium">{totalItems}</span> results
+          </div>
+        )}
+
+        {showLimitSelector && onLimitChange && (
+          <div className="flex items-center gap-2">
+            <label htmlFor="items-per-page" className="text-sm text-gray-600 whitespace-nowrap">
+              Items per page:
+            </label>
+            <select
+              id="items-per-page"
+              value={itemsPerPage}
+              onChange={handleLimitChange}
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            >
+              {limitOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center gap-2">
         {/* Previous Button */}
         <Button
           variant="outline"
@@ -132,7 +169,8 @@ export const Pagination: React.FC<PaginationProps> = ({
           <span className="hidden sm:inline">Next</span>
           <ChevronRight className="w-4 h-4" />
         </Button>
-      </div>
+        </div>
+      )}
     </div>
   );
 };

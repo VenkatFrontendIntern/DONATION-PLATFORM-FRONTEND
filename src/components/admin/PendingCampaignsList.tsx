@@ -34,6 +34,7 @@ interface PendingCampaignsListProps {
   rejectionReason: string;
   rejectingId: string | null;
   onPageChange: (page: number) => void;
+  onLimitChange?: (limit: number) => void;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   onRejectionReasonChange: (reason: string) => void;
@@ -50,6 +51,7 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
   rejectionReason,
   rejectingId,
   onPageChange,
+  onLimitChange,
   onApprove,
   onReject,
   onRejectionReasonChange,
@@ -114,7 +116,7 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
             </table>
           </div>
 
-          {pagination.pages > 1 && (
+          {(pagination.pages > 1 || onLimitChange) && (
             <div className="px-6 py-4 border-t border-gray-200">
               <Pagination
                 currentPage={pagination.page}
@@ -122,7 +124,9 @@ export const PendingCampaignsList: React.FC<PendingCampaignsListProps> = ({
                 totalItems={pagination.total}
                 itemsPerPage={pagination.limit}
                 onPageChange={onPageChange}
-                showInfo={false}
+                onLimitChange={onLimitChange}
+                showInfo={true}
+                showLimitSelector={!!onLimitChange}
               />
             </div>
           )}

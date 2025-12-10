@@ -10,6 +10,7 @@ import { PendingCampaignsList } from '../../components/admin/PendingCampaignsLis
 import { AdminTabs } from '../../components/admin/AdminTabs';
 import { MyCampaignsSection } from '../../components/admin/MyCampaignsSection';
 import { MyDonationsSection } from '../../components/admin/MyDonationsSection';
+import { AllDonationsList } from '../../components/admin/AllDonationsList';
 import { NewsletterManagement } from '../../components/admin/NewsletterManagement';
 import { ConfirmModal } from '../../components/ui/ConfirmModal';
 import toast from 'react-hot-toast';
@@ -25,10 +26,15 @@ const AdminDashboard: React.FC = () => {
     categories,
     myCampaigns,
     myDonations,
+    allDonations,
     loading,
     campaignsLoading,
     myDataLoading,
+    donationsLoading,
     pagination,
+    donationsPagination,
+    myCampaignsPagination,
+    myDonationsPagination,
     activeTab,
     setActiveTab,
     loadCategories,
@@ -36,6 +42,13 @@ const AdminDashboard: React.FC = () => {
     loadCampaigns,
     loadData,
     handlePageChange,
+    handleDonationsPageChange,
+    handleMyCampaignsPageChange,
+    handleMyDonationsPageChange,
+    handleLimitChange,
+    handleDonationsLimitChange,
+    handleMyCampaignsLimitChange,
+    handleMyDonationsLimitChange,
   } = useAdminDashboard();
 
   const {
@@ -136,6 +149,7 @@ const AdminDashboard: React.FC = () => {
             rejectionReason={rejectionReason}
             rejectingId={rejectingId}
             onPageChange={handlePageChange}
+            onLimitChange={handleLimitChange}
             onApprove={handleApprove}
             onReject={handleReject}
             onRejectionReasonChange={setRejectionReason}
@@ -146,13 +160,28 @@ const AdminDashboard: React.FC = () => {
         ) : activeTab === 'my-campaigns' ? (
           <MyCampaignsSection
             campaigns={myCampaigns}
+            pagination={myCampaignsPagination}
             loading={myDataLoading}
             onDelete={handleDeleteMyCampaign}
+            onPageChange={handleMyCampaignsPageChange}
+            onLimitChange={handleMyCampaignsLimitChange}
           />
         ) : activeTab === 'my-donations' ? (
           <MyDonationsSection
             donations={myDonations}
+            pagination={myDonationsPagination}
             loading={myDataLoading}
+            onDownloadCertificate={handleDownloadCertificate}
+            onPageChange={handleMyDonationsPageChange}
+            onLimitChange={handleMyDonationsLimitChange}
+          />
+        ) : activeTab === 'all-donations' ? (
+          <AllDonationsList
+            donations={allDonations}
+            pagination={donationsPagination}
+            loading={donationsLoading}
+            onPageChange={handleDonationsPageChange}
+            onLimitChange={handleDonationsLimitChange}
             onDownloadCertificate={handleDownloadCertificate}
           />
         ) : activeTab === 'newsletter' ? (
