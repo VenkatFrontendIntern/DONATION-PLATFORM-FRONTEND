@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Trash2, Plus } from 'lucide-react';
 import { CURRENCY_SYMBOL } from '../../constants';
 import { Button } from '../ui/Button';
+import { Pagination } from '../ui/Pagination';
 import { ShimmerMyCampaignsSection } from '../ui/Shimmer';
 
 interface Campaign {
@@ -15,16 +16,29 @@ interface Campaign {
   goalAmount: number;
 }
 
+interface PaginationData {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
 interface MyCampaignsSectionProps {
   campaigns: Campaign[];
+  pagination?: PaginationData;
   loading: boolean;
   onDelete: (campaignId: string) => void;
+  onPageChange?: (page: number) => void;
+  onLimitChange?: (limit: number) => void;
 }
 
 export const MyCampaignsSection: React.FC<MyCampaignsSectionProps> = ({
   campaigns,
+  pagination,
   loading,
   onDelete,
+  onPageChange,
+  onLimitChange,
 }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
@@ -47,62 +61,78 @@ export const MyCampaignsSection: React.FC<MyCampaignsSectionProps> = ({
           </Link>
         </div>
       ) : (
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {campaigns.map((campaign) => (
-              <div
-                key={campaign._id}
-                className="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative"
-              >
-                <Link to={`/campaign/${campaign._id}`} className="block">
-                  <img
-                    src={campaign.coverImage || 'https://via.placeholder.com/800x400?text=No+Image'}
-                    alt={campaign.title || 'Campaign'}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs bg-primary-50 text-primary-600 px-2 py-1 rounded">
-                        {campaign.category?.name}
-                      </span>
-                      <span
-                        className={`text-xs px-2 py-1 rounded ${
-                          campaign.status === 'approved'
-                            ? 'bg-green-100 text-green-700'
-                            : campaign.status === 'pending'
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : 'bg-red-100 text-red-700'
-                        }`}
-                      >
-                        {campaign.status}
-                      </span>
+        <>
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {campaigns.map((campaign) => (
+                <div
+                  key={campaign._id}
+                  className="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative"
+                >
+                  <Link to={`/campaign/${campaign._id}`} className="block">
+                    <img
+                      src={campaign.coverImage || 'https://via.placeholder.com/800x400?text=No+Image'}
+                      alt={campaign.title || 'Campaign'}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs bg-primary-50 text-primary-600 px-2 py-1 rounded">
+                          {campaign.category?.name}
+                        </span>
+                        <span
+                          className={`text-xs px-2 py-1 rounded ${
+                            campaign.status === 'approved'
+                              ? 'bg-green-100 text-green-700'
+                              : campaign.status === 'pending'
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : 'bg-red-100 text-red-700'
+                          }`}
+                        >
+                          {campaign.status}
+                        </span>
+                      </div>
+                      <h3 className="font-semibold text-gray-900 mb-2">{campaign.title}</h3>
+                      <div className="text-sm text-gray-600">
+                        <p>
+                          {CURRENCY_SYMBOL}{campaign.raisedAmount.toLocaleString('en-IN')} of{' '}
+                          {CURRENCY_SYMBOL}{campaign.goalAmount.toLocaleString('en-IN')}
+                        </p>
+                      </div>
                     </div>
-                    <h3 className="font-semibold text-gray-900 mb-2">{campaign.title}</h3>
-                    <div className="text-sm text-gray-600">
-                      <p>
-                        {CURRENCY_SYMBOL}{campaign.raisedAmount.toLocaleString('en-IN')} of{' '}
-                        {CURRENCY_SYMBOL}{campaign.goalAmount.toLocaleString('en-IN')}
-                      </p>
-                    </div>
+                  </Link>
+                  <div className="absolute top-4 right-4">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onDelete(campaign._id);
+                      }}
+                      className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg shadow-md transition-colors"
+                      title="Delete campaign"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
-                </Link>
-                <div className="absolute top-4 right-4">
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      onDelete(campaign._id);
-                    }}
-                    className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg shadow-md transition-colors"
-                    title="Delete campaign"
-                  >
-                    <Trash2 size={16} />
-                  </button>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+          {pagination && (pagination.pages > 1 || onLimitChange) && (
+            <div className="px-6 py-4 border-t border-gray-200">
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.pages}
+                totalItems={pagination.total}
+                itemsPerPage={pagination.limit}
+                onPageChange={onPageChange}
+                onLimitChange={onLimitChange}
+                showInfo={true}
+                showLimitSelector={!!onLimitChange}
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

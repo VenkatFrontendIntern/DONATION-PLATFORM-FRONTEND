@@ -65,6 +65,19 @@ api.interceptors.response.use(
     const publicEndpoints = ['/auth/login', '/auth/signup', '/auth/refresh', '/auth/forgot', '/auth/reset-password', '/newsletter/subscribe'];
     const isPublicEndpoint = error.config?.url && publicEndpoints.some(endpoint => error.config.url.includes(endpoint));
     const isOnLoginPage = window.location.pathname === '/login' || window.location.pathname === '/signup';
+    
+    // Special handling for /auth/me endpoint - might fail due to DB connection issues on initial load
+    const isAuthMeEndpoint = error.config?.url?.includes('/auth/me');
+    const isStatsEndpoint = error.config?.url?.includes('/stats');
+    
+    // For /auth/me and /stats endpoints, handle 500/503 errors gracefully (likely DB connection issues)
+    if ((isAuthMeEndpoint || isStatsEndpoint) && (error.response?.status === 500 || error.response?.status === 503)) {
+      // Mark as silent error - these are likely temporary DB connection issues
+      (error as any).isSilent = true;
+      (error as any).isTemporaryError = true;
+      (error as any).userMessage = '';
+      return Promise.reject(error);
+    }
 
     if (error.response?.status === 401 && !isPublicEndpoint && !isOnLoginPage) {
       // Prevent infinite refresh loops
@@ -73,6 +86,14 @@ api.interceptors.response.use(
         if (!isOnLoginPage) {
           window.location.href = '/login';
         }
+        return Promise.reject(error);
+      }
+
+      // For /auth/me endpoint, don't try to refresh if it's a server error (likely DB issue)
+      // Just let it fail silently and let the AuthContext handle it
+      if (isAuthMeEndpoint && (error.response?.status === 500 || error.response?.status === 503)) {
+        (error as any).isSilent = true;
+        (error as any).isTemporaryError = true;
         return Promise.reject(error);
       }
 

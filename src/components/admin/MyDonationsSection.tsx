@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Download, Calendar, Heart } from 'lucide-react';
 import { CURRENCY_SYMBOL } from '../../constants';
 import { Button } from '../ui/Button';
+import { Pagination } from '../ui/Pagination';
 import { ShimmerMyDonationsSection } from '../ui/Shimmer';
 
 interface Donation {
@@ -14,16 +15,29 @@ interface Donation {
   campaignId?: { title: string };
 }
 
+interface PaginationData {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
 interface MyDonationsSectionProps {
   donations: Donation[];
+  pagination?: PaginationData;
   loading: boolean;
   onDownloadCertificate: (donationId: string) => void;
+  onPageChange?: (page: number) => void;
+  onLimitChange?: (limit: number) => void;
 }
 
 export const MyDonationsSection: React.FC<MyDonationsSectionProps> = ({
   donations,
+  pagination,
   loading,
   onDownloadCertificate,
+  onPageChange,
+  onLimitChange,
 }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
@@ -41,44 +55,60 @@ export const MyDonationsSection: React.FC<MyDonationsSectionProps> = ({
           </Link>
         </div>
       ) : (
-        <div className="divide-y divide-gray-100">
-          {donations.map((donation) => (
-            <div
-              key={donation._id}
-              className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex-1">
-                <h4 className="font-semibold text-gray-900 mb-1">
-                  {donation.campaignId?.title || 'Campaign'}
-                </h4>
-                <div className="flex items-center text-sm text-gray-500 gap-4">
-                  <span className="flex items-center">
-                    <Calendar size={14} className="mr-1" />
-                    {new Date(donation.createdAt).toLocaleDateString()}
+        <>
+          <div className="divide-y divide-gray-100">
+            {donations.map((donation) => (
+              <div
+                key={donation._id}
+                className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex-1">
+                  <h4 className="font-semibold text-gray-900 mb-1">
+                    {donation.campaignId?.title || 'Campaign'}
+                  </h4>
+                  <div className="flex items-center text-sm text-gray-500 gap-4">
+                    <span className="flex items-center">
+                      <Calendar size={14} className="mr-1" />
+                      {new Date(donation.createdAt).toLocaleDateString()}
+                    </span>
+                    <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-medium uppercase tracking-wide">
+                      {donation.status}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
+                  <span className="font-bold text-lg text-gray-900">
+                    {CURRENCY_SYMBOL}{donation.amount.toLocaleString('en-IN')}
                   </span>
-                  <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-medium uppercase tracking-wide">
-                    {donation.status}
-                  </span>
+                  {donation.certificateUrl && (
+                    <button
+                      onClick={() => onDownloadCertificate(donation._id)}
+                      className="flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 font-medium px-3 py-2 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors"
+                    >
+                      <Download size={16} />
+                      <span className="hidden sm:inline">80G Certificate</span>
+                      <span className="sm:hidden">80G</span>
+                    </button>
+                  )}
                 </div>
               </div>
-              <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
-                <span className="font-bold text-lg text-gray-900">
-                  {CURRENCY_SYMBOL}{donation.amount.toLocaleString('en-IN')}
-                </span>
-                {donation.certificateUrl && (
-                  <button
-                    onClick={() => onDownloadCertificate(donation._id)}
-                    className="flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700 font-medium px-3 py-2 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors"
-                  >
-                    <Download size={16} />
-                    <span className="hidden sm:inline">80G Certificate</span>
-                    <span className="sm:hidden">80G</span>
-                  </button>
-                )}
-              </div>
+            ))}
+          </div>
+          {donations.length > 0 && (
+            <div className="px-6 py-4 border-t border-gray-200">
+              <Pagination
+                currentPage={pagination?.page || 1}
+                totalPages={pagination?.pages || Math.ceil((pagination?.total || donations.length) / (pagination?.limit || 10)) || 1}
+                totalItems={pagination?.total || donations.length}
+                itemsPerPage={pagination?.limit || 10}
+                onPageChange={onPageChange}
+                onLimitChange={onLimitChange}
+                showInfo={true}
+                showLimitSelector={!!onLimitChange}
+              />
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -1,5 +1,5 @@
 import api from './api';
-import { ApiResponse, extractData } from '../utils/apiResponse';
+import { ApiResponse, PaginatedResponse, extractData, extractPaginatedData } from '../utils/apiResponse';
 
 interface CreateOrderData {
   campaignId: string;
@@ -34,6 +34,12 @@ interface VerifyPaymentResponseData {
 interface DonationsResponseData {
   donations: any[];
   total?: number;
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
 }
 
 export const donationService = {
@@ -54,9 +60,14 @@ export const donationService = {
     return response.data;
   },
 
-  getMyDonations: async (): Promise<DonationsResponseData> => {
-    const response = await api.get<ApiResponse<DonationsResponseData>>('/donation/my-donations');
-    return extractData(response.data);
+  getMyDonations: async (params: { page?: number; limit?: number } = {}): Promise<DonationsResponseData> => {
+    const response = await api.get<PaginatedResponse>('/donation/my-donations', { params });
+    const { items, pagination } = extractPaginatedData(response.data);
+    return {
+      donations: items,
+      total: pagination.total,
+      pagination: pagination,
+    };
   },
 
   getCampaignDonations: async (campaignId: string, params: { limit?: number; page?: number } = {}): Promise<DonationsResponseData> => {

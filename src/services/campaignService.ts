@@ -66,15 +66,15 @@ export const campaignService = {
     return extractData(response.data);
   },
 
-  getMyCampaigns: async (): Promise<CampaignResponse> => {
-    const response = await api.get<ApiResponse<{ campaigns: any[] }>>('/campaign/my-campaigns');
-    const data = extractData(response.data);
+  getMyCampaigns: async (params: { page?: number; limit?: number } = {}): Promise<CampaignResponse> => {
+    const response = await api.get<PaginatedResponse>('/campaign/my-campaigns', { params });
+    const { items, pagination } = extractPaginatedData(response.data);
     return {
-      campaigns: data.campaigns,
-      total: data.campaigns.length,
-      page: 1,
-      limit: data.campaigns.length,
-      pages: 1,
+      campaigns: items,
+      total: pagination.total,
+      page: pagination.page,
+      limit: pagination.limit,
+      pages: pagination.pages,
     };
   },
 
